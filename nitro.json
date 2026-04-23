@@ -1,0 +1,30 @@
+{
+  "$schema": "https://nitro.margelo.com/nitro.schema.json",
+  "cxxNamespace": [
+    "nitroshimmertext"
+  ],
+  "ios": {
+    "iosModuleName": "NitroShimmerText"
+  },
+  "android": {
+    "androidNamespace": [
+      "nitroshimmertext"
+    ],
+    "androidCxxLibName": "NitroShimmerText"
+  },
+  "autolinking": {
+    "NitroShimmerText": {
+      "ios": {
+        "language": "swift",
+        "implementationClassName": "HybridNitroShimmerText"
+      },
+      "android": {
+        "language": "kotlin",
+        "implementationClassName": "HybridNitroShimmerText"
+      }
+    }
+  },
+  "ignorePaths": [
+    "**/node_modules"
+  ]
+}
