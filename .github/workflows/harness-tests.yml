@@ -72,8 +72,8 @@ jobs:
           set -o pipefail && xcodebuild \
             CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ \
             -derivedDataPath build -UseModernBuildSystem=YES \
-            -workspace NitroImageShimmerTextExample.xcworkspace \
-            -scheme NitroImageShimmerTextExample \
+            -workspace NitroShimmerTextExample.xcworkspace \
+            -scheme NitroShimmerTextExample \
             -sdk iphonesimulator \
             -configuration Debug \
             -destination 'platform=iOS Simulator,name=iPhone 17' \
@@ -84,7 +84,7 @@ jobs:
         uses: callstackincubator/react-native-harness@v1.1.0
         with:
           runner: iphone-17
-          app: ${{ github.workspace }}/example/ios/build/Build/Products/Debug-iphonesimulator/NitroImageShimmerTextExample.app
+          app: ${{ github.workspace }}/example/ios/build/Build/Products/Debug-iphonesimulator/NitroShimmerTextExample.app
           projectRoot: example
 
   test-android:
