@@ -110,6 +110,11 @@ jobs:
           key: ${{ runner.os }}-${{ runner.arch }}-gradle-wrapper-v1-${{ hashFiles('example/android/gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: ${{ runner.os }}-${{ runner.arch }}-gradle-wrapper-v1-
 
+      - name: Set up QEMU for x86_64 binary execution
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: linux/amd64
+
       - name: Setup Android SDK
         run: |
           ANDROID_SDK_ROOT="${HOME}/.android/sdk"
@@ -135,7 +140,6 @@ jobs:
           --no-daemon
           --no-build-cache
           -PreactNativeArchitectures=arm64-v8a
-          -Pandroid.aapt2FromMavenOverride=$ANDROID_HOME/build-tools/36.0.0/aapt2
 
       - name: Run Harness Tests
         uses: reactivecircus/android-emulator-runner@v2
