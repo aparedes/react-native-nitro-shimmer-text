@@ -44,11 +44,11 @@
   "workspaces": [
     "example"
   ],
-  "repository": "https://github.com/alejandroparedesalva/react-native-nitro-shimmer-text.git",
+  "repository": "https://github.com/aparedes/react-native-nitro-shimmer-text.git",
   "author": "Alejandro Paredes Alva",
   "license": "MIT",
-  "bugs": "https://github.com/alejandroparedesalva/react-native-nitro-shimmer-text/issues",
-  "homepage": "https://github.com/alejandroparedesalva/react-native-nitro-shimmer-text#readme",
+  "bugs": "https://github.com/aparedes/react-native-nitro-shimmer-text/issues",
+  "homepage": "https://github.com/aparedes/react-native-nitro-shimmer-text#readme",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
