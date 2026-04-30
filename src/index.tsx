@@ -54,6 +54,7 @@ export function NitroShimmerText({ style, ...props }: PublicProps) {
 
   return (
     <NitroShimmerTextNative
+      shimmerHighlightColor="#FFFFFF"
       {...props}
       style={[style, sizeStyle]}
       onContentSizeChange={callback(naturalSizeCallback)}

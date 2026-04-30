@@ -56,6 +56,11 @@
       "arrowParentheses": "always"
     }
   },
+  "json": {
+    "formatter": {
+      "trailingCommas": "none"
+    }
+  },
   "overrides": [
     {
       "includes": ["*.ts", "*.tsx"],
