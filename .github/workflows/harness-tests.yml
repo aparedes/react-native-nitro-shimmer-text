@@ -113,6 +113,9 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('example/android/**/*.gradle*') }}
           restore-keys: ${{ runner.os }}-gradle-
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
       - name: Build Android APK
         working-directory: example/android
         run: ./gradlew assembleDebug --no-daemon --build-cache -PreactNativeArchitectures=arm64-v8a
