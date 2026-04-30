@@ -95,10 +95,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
 
       - name: Enable KVM
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
+        run: sudo chmod 666 /dev/kvm
 
       - name: Install dependencies
         run: bun install
@@ -121,13 +118,13 @@ jobs:
 
       - name: Build Android APK
         working-directory: example/android
-        run: ./gradlew assembleDebug --no-daemon --build-cache -PreactNativeArchitectures=x86_64
+        run: ./gradlew assembleDebug --no-daemon --build-cache -PreactNativeArchitectures=arm64-v8a
 
       - name: Run Harness Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 36
-          arch: x86_64
+          arch: arm64-v8a
           target: google_apis
           avd-name: Medium_Phone_API_36.1
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
