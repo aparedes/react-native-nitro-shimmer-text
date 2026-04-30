@@ -1,0 +1,17 @@
+{
+  "uiViewClassName": "NitroShimmerText",
+  "supportsRawText": false,
+  "bubblingEventTypes": {},
+  "directEventTypes": {},
+  "validAttributes": {
+    "onContentSizeChange": true,
+    "text": true,
+    "shimmerBaseColor": true,
+    "shimmerHighlightColor": true,
+    "shimmerDuration": true,
+    "fontSize": true,
+    "fontFamily": true,
+    "fontWeight": true,
+    "hybridRef": true
+  }
+}
