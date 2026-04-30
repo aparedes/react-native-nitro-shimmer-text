@@ -89,7 +89,7 @@ jobs:
 
   test-android:
     name: Harness Tests (Android)
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2
@@ -102,50 +102,29 @@ jobs:
         with:
           distribution: "zulu"
           java-version: "17"
+          cache: "gradle"
 
-      - name: Cache Gradle wrapper
+      - name: Cache Gradle
         uses: actions/cache@v5
         with:
-          path: ~/.gradle/wrapper
-          key: ${{ runner.os }}-${{ runner.arch }}-gradle-wrapper-v1-${{ hashFiles('example/android/gradle/wrapper/gradle-wrapper.properties') }}
-          restore-keys: ${{ runner.os }}-${{ runner.arch }}-gradle-wrapper-v1-
-
-      - name: Set up QEMU for x86_64 binary execution
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: linux/amd64
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('example/android/**/*.gradle*') }}
+          restore-keys: ${{ runner.os }}-gradle-
 
       - name: Setup Android SDK
-        run: |
-          ANDROID_SDK_ROOT="${HOME}/.android/sdk"
-          mkdir -p "${ANDROID_SDK_ROOT}/cmdline-tools"
-          wget -q "https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip" -O /tmp/cmdline-tools.zip
-          unzip -q /tmp/cmdline-tools.zip -d "${ANDROID_SDK_ROOT}/cmdline-tools"
-          mv "${ANDROID_SDK_ROOT}/cmdline-tools/cmdline-tools" "${ANDROID_SDK_ROOT}/cmdline-tools/latest"
-          echo "${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin" >> "${GITHUB_PATH}"
-          echo "${ANDROID_SDK_ROOT}/platform-tools" >> "${GITHUB_PATH}"
-          echo "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT}" >> "${GITHUB_ENV}"
-          echo "ANDROID_HOME=${ANDROID_SDK_ROOT}" >> "${GITHUB_ENV}"
-          yes | "${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager" --licenses 2>/dev/null || true
-          "${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager" \
-            "platform-tools" \
-            "platforms;android-36" \
-            "build-tools;36.0.0" \
-            "ndk;27.1.12297006"
+        uses: android-actions/setup-android@v3
 
       - name: Build Android APK
         working-directory: example/android
-        run: >-
-          ./gradlew assembleDebug
-          --no-daemon
-          --no-build-cache
-          -PreactNativeArchitectures=arm64-v8a
+        run: ./gradlew assembleDebug --no-daemon --build-cache -PreactNativeArchitectures=x86_64
 
       - name: Run Harness Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 36
-          arch: arm64-v8a
+          arch: x86_64
           target: google_apis
           avd-name: Medium_Phone_API_36.1
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
