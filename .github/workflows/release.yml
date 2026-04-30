@@ -20,10 +20,22 @@ jobs:
       pull-requests: write
       id-token: write
     steps:
+      - name: Mint GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          registry-url: "https://registry.npmjs.org"
       - name: Setup Bun.js
         uses: oven-sh/setup-bun@v2
         with:
@@ -45,11 +57,9 @@ jobs:
 
       - name: Release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
           GIT_AUTHOR_NAME: ${{ github.actor }}
-          GIT_AUTHOR_EMAIL: '${{ github.actor }}@users.noreply.github.com'
+          GIT_AUTHOR_EMAIL: "${{ github.actor }}@users.noreply.github.com"
           GIT_COMMITTER_NAME: ${{ github.actor }}
-          GIT_COMMITTER_EMAIL: '${{ github.actor }}@users.noreply.github.com'
+          GIT_COMMITTER_EMAIL: "${{ github.actor }}@users.noreply.github.com"
         run: bun release
