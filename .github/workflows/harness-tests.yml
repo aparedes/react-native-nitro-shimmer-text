@@ -94,9 +94,6 @@ jobs:
       - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2
 
-      - name: Enable KVM
-        run: sudo chmod 666 /dev/kvm
-
       - name: Install dependencies
         run: bun install
 
