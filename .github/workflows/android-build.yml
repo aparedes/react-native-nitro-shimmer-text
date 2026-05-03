@@ -37,9 +37,9 @@ concurrency:
 jobs:
   build:
     name: Build Android Example App
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2
 
       - name: Install dependencies (bun)
@@ -52,8 +52,11 @@ jobs:
           java-version: "17"
           cache: "gradle"
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
       - name: Cache Gradle
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.gradle/caches
