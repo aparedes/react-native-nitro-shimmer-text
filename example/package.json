@@ -14,7 +14,7 @@
     "pod": "bundle install && bundle exec pod install --project-directory=ios"
   },
   "dependencies": {
-    "@react-native/new-app-screen": "0.84.1",
+    "@react-native/new-app-screen": "0.85.3",
     "react": "19.2.3",
     "react-native": "0.84.1",
     "react-native-harness": "^1.1.0",
@@ -31,10 +31,10 @@
     "@react-native-harness/platform-android": "^1.1.0",
     "@react-native-harness/platform-apple": "^1.1.0",
     "@react-native-harness/ui": "^1.1.0",
-    "@react-native/babel-preset": "0.84.1",
-    "@react-native/eslint-config": "0.84.1",
-    "@react-native/metro-config": "0.84.1",
-    "@react-native/typescript-config": "0.84.1",
+    "@react-native/babel-preset": "0.85.3",
+    "@react-native/eslint-config": "0.85.3",
+    "@react-native/metro-config": "0.85.3",
+    "@react-native/typescript-config": "0.85.3",
     "@types/jest": "^29.5.13",
     "babel-plugin-module-resolver": "^5.0.2"
   },
