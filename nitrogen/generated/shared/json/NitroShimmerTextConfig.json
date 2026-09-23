@@ -4,7 +4,6 @@
   "bubblingEventTypes": {},
   "directEventTypes": {},
   "validAttributes": {
-    "onContentSizeChange": true,
     "text": true,
     "shimmerBaseColor": true,
     "shimmerHighlightColor": true,
@@ -12,6 +11,8 @@
     "fontSize": true,
     "fontFamily": true,
     "fontWeight": true,
+    "allowFontScaling": true,
+    "onContentSizeChange": true,
     "hybridRef": true
   }
 }

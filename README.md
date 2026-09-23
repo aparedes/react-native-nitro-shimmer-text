@@ -53,13 +53,23 @@ The view auto-sizes to its text content when no explicit `width`/`height` is pro
 | Prop | Type | Default | Description |
 |---|---|---|---|
 | `text` | `string` | — | The text to render. Required. |
-| `shimmerBaseColor` | `string` (hex) | `#808080` | Base text color. |
-| `shimmerHighlightColor` | `string` (hex) | `#FFFFFF` | Color of the moving highlight band. |
+| `shimmerBaseColor` | `ColorValue` | `#808080` | Base text color. Any React Native color (`#RGB`, `#RRGGBBAA`, `rgb()`, named colors…). |
+| `shimmerHighlightColor` | `ColorValue` | `#FFFFFF` | Color of the moving highlight band. |
 | `shimmerDuration` | `number` (ms) | `1500` | Duration of one shimmer sweep. |
 | `fontSize` | `number` | `16` | Font size in points (iOS) / sp (Android). |
-| `fontFamily` | `string` | system | Font family name. Falls back to system if unavailable. |
-| `fontWeight` | `'normal' \| 'bold' \| '100'…'900'` | `'normal'` | Font weight. |
+| `fontFamily` | `string` | system | Font family name. Custom fonts linked into the app (iOS) or placed in `assets/fonts` / `res/font` (Android) are supported. Falls back to system if unavailable. |
+| `fontWeight` | `'normal' \| 'bold' \| '100'…'900'` | `'normal'` | Font weight. Picks the closest weight available in `fontFamily`. |
+| `allowFontScaling` | `boolean` | `true` | Whether the text follows the system text size (Dynamic Type / Android font scale). |
 | `style` | `StyleProp<ViewStyle>` | — | Standard view style. Use `width`/`height` to override auto-sizing. |
+
+All other `View` props (`testID`, `accessibilityLabel`, …) are passed through. A `hybridRef` (wrapped in `callback(...)` from `react-native-nitro-modules`) gives access to the underlying hybrid view.
+
+## Behavior
+
+- **Layout:** text is drawn on a single line, centered in the view, and truncated with "…" when the view is narrower than the text.
+- **Accessibility:** the text is exposed to VoiceOver and TalkBack as a single static text element.
+- **Reduced motion:** when the system asks to reduce motion (iOS *Reduce Motion*, Android *Remove animations*), the sweep is disabled and only the base text is shown.
+- **Performance:** the animation pauses when the view is detached or hidden and resumes when it becomes visible again.
 
 ## Credits
 

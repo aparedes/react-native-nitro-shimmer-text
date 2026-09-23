@@ -37,10 +37,6 @@ void JHybridNitroShimmerTextStateUpdater::updateViewProps(jni::alias_ref<jni::JC
   }
 
   // Update all props if they are dirty
-  if (props->onContentSizeChange.isDirty) {
-    hybridView->setOnContentSizeChange(props->onContentSizeChange.value);
-    props->onContentSizeChange.isDirty = false;
-  }
   if (props->text.isDirty) {
     hybridView->setText(props->text.value);
     props->text.isDirty = false;
@@ -68,6 +64,14 @@ void JHybridNitroShimmerTextStateUpdater::updateViewProps(jni::alias_ref<jni::JC
   if (props->fontWeight.isDirty) {
     hybridView->setFontWeight(props->fontWeight.value);
     props->fontWeight.isDirty = false;
+  }
+  if (props->allowFontScaling.isDirty) {
+    hybridView->setAllowFontScaling(props->allowFontScaling.value);
+    props->allowFontScaling.isDirty = false;
+  }
+  if (props->onContentSizeChange.isDirty) {
+    hybridView->setOnContentSizeChange(props->onContentSizeChange.value);
+    props->onContentSizeChange.isDirty = false;
   }
 
   // Update hybridRef if it changed

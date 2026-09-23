@@ -50,14 +50,12 @@ namespace margelo::nitro::nitroshimmertext {
 
   public:
     // Properties
-    std::optional<std::function<void(double /* width */, double /* height */)>> getOnContentSizeChange() override;
-    void setOnContentSizeChange(const std::optional<std::function<void(double /* width */, double /* height */)>>& onContentSizeChange) override;
     std::string getText() override;
     void setText(const std::string& text) override;
-    std::optional<std::string> getShimmerBaseColor() override;
-    void setShimmerBaseColor(const std::optional<std::string>& shimmerBaseColor) override;
-    std::optional<std::string> getShimmerHighlightColor() override;
-    void setShimmerHighlightColor(const std::optional<std::string>& shimmerHighlightColor) override;
+    std::optional<double> getShimmerBaseColor() override;
+    void setShimmerBaseColor(std::optional<double> shimmerBaseColor) override;
+    std::optional<double> getShimmerHighlightColor() override;
+    void setShimmerHighlightColor(std::optional<double> shimmerHighlightColor) override;
     std::optional<double> getShimmerDuration() override;
     void setShimmerDuration(std::optional<double> shimmerDuration) override;
     std::optional<double> getFontSize() override;
@@ -66,6 +64,10 @@ namespace margelo::nitro::nitroshimmertext {
     void setFontFamily(const std::optional<std::string>& fontFamily) override;
     std::optional<FontWeight> getFontWeight() override;
     void setFontWeight(std::optional<FontWeight> fontWeight) override;
+    std::optional<bool> getAllowFontScaling() override;
+    void setAllowFontScaling(std::optional<bool> allowFontScaling) override;
+    std::optional<std::function<void(double /* width */, double /* height */)>> getOnContentSizeChange() override;
+    void setOnContentSizeChange(const std::optional<std::function<void(double /* width */, double /* height */)>>& onContentSizeChange) override;
 
   public:
     // Methods

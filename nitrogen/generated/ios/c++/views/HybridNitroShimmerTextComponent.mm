@@ -79,11 +79,6 @@ using namespace margelo::nitro::nitroshimmertext::views;
   // 2. Update each prop individually
   swiftPart.beforeUpdate();
 
-  // onContentSizeChange: optional
-  if (newViewProps.onContentSizeChange.isDirty) {
-    swiftPart.setOnContentSizeChange(newViewProps.onContentSizeChange.value);
-    newViewProps.onContentSizeChange.isDirty = false;
-  }
   // text: string
   if (newViewProps.text.isDirty) {
     swiftPart.setText(newViewProps.text.value);
@@ -118,6 +113,16 @@ using namespace margelo::nitro::nitroshimmertext::views;
   if (newViewProps.fontWeight.isDirty) {
     swiftPart.setFontWeight(newViewProps.fontWeight.value);
     newViewProps.fontWeight.isDirty = false;
+  }
+  // allowFontScaling: optional
+  if (newViewProps.allowFontScaling.isDirty) {
+    swiftPart.setAllowFontScaling(newViewProps.allowFontScaling.value);
+    newViewProps.allowFontScaling.isDirty = false;
+  }
+  // onContentSizeChange: optional
+  if (newViewProps.onContentSizeChange.isDirty) {
+    swiftPart.setOnContentSizeChange(newViewProps.onContentSizeChange.value);
+    newViewProps.onContentSizeChange.isDirty = false;
   }
 
   swiftPart.afterUpdate();

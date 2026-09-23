@@ -26,20 +26,6 @@ import com.margelo.nitro.views.HybridView
 )
 abstract class HybridNitroShimmerTextSpec: HybridView() {
   // Properties
-  abstract var onContentSizeChange: ((width: Double, height: Double) -> Unit)?
-  
-  private var onContentSizeChange_cxx: Func_void_double_double?
-    @Keep
-    @DoNotStrip
-    get() {
-      return onContentSizeChange?.let { Func_void_double_double_java(it) }
-    }
-    @Keep
-    @DoNotStrip
-    set(value) {
-      onContentSizeChange = value?.let { it }
-    }
-  
   @get:DoNotStrip
   @get:Keep
   @set:DoNotStrip
@@ -50,13 +36,13 @@ abstract class HybridNitroShimmerTextSpec: HybridView() {
   @get:Keep
   @set:DoNotStrip
   @set:Keep
-  abstract var shimmerBaseColor: String?
+  abstract var shimmerBaseColor: Double?
   
   @get:DoNotStrip
   @get:Keep
   @set:DoNotStrip
   @set:Keep
-  abstract var shimmerHighlightColor: String?
+  abstract var shimmerHighlightColor: Double?
   
   @get:DoNotStrip
   @get:Keep
@@ -81,6 +67,26 @@ abstract class HybridNitroShimmerTextSpec: HybridView() {
   @set:DoNotStrip
   @set:Keep
   abstract var fontWeight: FontWeight?
+  
+  @get:DoNotStrip
+  @get:Keep
+  @set:DoNotStrip
+  @set:Keep
+  abstract var allowFontScaling: Boolean?
+  
+  abstract var onContentSizeChange: ((width: Double, height: Double) -> Unit)?
+  
+  private var onContentSizeChange_cxx: Func_void_double_double?
+    @Keep
+    @DoNotStrip
+    get() {
+      return onContentSizeChange?.let { Func_void_double_double_java(it) }
+    }
+    @Keep
+    @DoNotStrip
+    set(value) {
+      onContentSizeChange = value?.let { it }
+    }
 
   // Methods
   

@@ -37,7 +37,7 @@ This is a **React Native Nitro Module** — a native view component built with [
 | Layer | Location | Language |
 |---|---|---|
 | TypeScript spec | `src/specs/nitro-shimmer-text.nitro.ts` | TypeScript |
-| JS entry point | `src/index.ts` | TypeScript |
+| JS entry point | `src/index.tsx` | TypeScript |
 | Generated bridge | `nitrogen/generated/` | C++, Swift, Kotlin (auto) |
 | iOS implementation | `ios/HybridNitroShimmerText.swift` | Swift |
 | Android implementation | `android/src/main/java/com/nitroshimmertext/HybridNitroShimmerText.kt` | Kotlin |
@@ -52,7 +52,7 @@ This is a **React Native Nitro Module** — a native view component built with [
 
 ### Consuming the component
 
-`src/index.ts` exports `NitroShimmerText` (a Nitro host component) and `NitroShimmerTextRef` (the ref type). The component config is loaded from the generated JSON at `nitrogen/generated/shared/json/NitroShimmerTextConfig.json`.
+`src/index.tsx` exports `NitroShimmerText` (a JS wrapper around the Nitro host component), `NitroShimmerTextRef` (the ref type), `ShimmerTextProps` and `FontWeight`. The wrapper converts colors with `processColor` (native props take ARGB numbers) and auto-sizes the view from the native `onContentSizeChange` callback. The component config is loaded from the generated JSON at `nitrogen/generated/shared/json/NitroShimmerTextConfig.json`.
 
 ### Build output
 

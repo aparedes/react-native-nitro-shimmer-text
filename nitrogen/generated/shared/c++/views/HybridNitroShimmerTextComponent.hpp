@@ -16,10 +16,10 @@
 #include <react/renderer/components/view/ConcreteViewShadowNode.h>
 #include <react/renderer/components/view/ViewProps.h>
 
-#include <functional>
-#include <optional>
 #include <string>
+#include <optional>
 #include "FontWeight.hpp"
+#include <functional>
 #include <memory>
 #include "HybridNitroShimmerTextSpec.hpp"
 
@@ -43,14 +43,15 @@ namespace margelo::nitro::nitroshimmertext::views {
                                 const react::RawProps& rawProps);
 
   public:
-    CachedProp<std::optional<std::function<void(double /* width */, double /* height */)>>> onContentSizeChange;
     CachedProp<std::string> text;
-    CachedProp<std::optional<std::string>> shimmerBaseColor;
-    CachedProp<std::optional<std::string>> shimmerHighlightColor;
+    CachedProp<std::optional<double>> shimmerBaseColor;
+    CachedProp<std::optional<double>> shimmerHighlightColor;
     CachedProp<std::optional<double>> shimmerDuration;
     CachedProp<std::optional<double>> fontSize;
     CachedProp<std::optional<std::string>> fontFamily;
     CachedProp<std::optional<FontWeight>> fontWeight;
+    CachedProp<std::optional<bool>> allowFontScaling;
+    CachedProp<std::optional<std::function<void(double /* width */, double /* height */)>>> onContentSizeChange;
     CachedProp<std::optional<std::function<void(const std::shared_ptr<HybridNitroShimmerTextSpec>& /* ref */)>>> hybridRef;
 
   private:

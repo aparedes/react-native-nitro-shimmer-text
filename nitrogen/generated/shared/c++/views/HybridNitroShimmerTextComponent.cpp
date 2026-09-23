@@ -26,16 +26,6 @@ namespace margelo::nitro::nitroshimmertext::views {
                                                            const HybridNitroShimmerTextProps& sourceProps,
                                                            const react::RawProps& rawProps):
     react::ViewProps(context, sourceProps, rawProps, filterObjectKeys),
-    onContentSizeChange([&]() -> CachedProp<std::optional<std::function<void(double /* width */, double /* height */)>>> {
-      try {
-        const react::RawValue* rawValue = rawProps.at("onContentSizeChange", nullptr, nullptr);
-        if (rawValue == nullptr) return sourceProps.onContentSizeChange;
-        const auto& [runtime, value] = (std::pair<jsi::Runtime*, jsi::Value>)*rawValue;
-        return CachedProp<std::optional<std::function<void(double /* width */, double /* height */)>>>::fromRawValue(*runtime, value.asObject(*runtime).getProperty(*runtime, PropNameIDCache::get(*runtime, "f")), sourceProps.onContentSizeChange);
-      } catch (const std::exception& exc) {
-        throw std::runtime_error(std::string("NitroShimmerText.onContentSizeChange: ") + exc.what());
-      }
-    }()),
     text([&]() -> CachedProp<std::string> {
       try {
         const react::RawValue* rawValue = rawProps.at("text", nullptr, nullptr);
@@ -46,22 +36,22 @@ namespace margelo::nitro::nitroshimmertext::views {
         throw std::runtime_error(std::string("NitroShimmerText.text: ") + exc.what());
       }
     }()),
-    shimmerBaseColor([&]() -> CachedProp<std::optional<std::string>> {
+    shimmerBaseColor([&]() -> CachedProp<std::optional<double>> {
       try {
         const react::RawValue* rawValue = rawProps.at("shimmerBaseColor", nullptr, nullptr);
         if (rawValue == nullptr) return sourceProps.shimmerBaseColor;
         const auto& [runtime, value] = (std::pair<jsi::Runtime*, jsi::Value>)*rawValue;
-        return CachedProp<std::optional<std::string>>::fromRawValue(*runtime, value, sourceProps.shimmerBaseColor);
+        return CachedProp<std::optional<double>>::fromRawValue(*runtime, value, sourceProps.shimmerBaseColor);
       } catch (const std::exception& exc) {
         throw std::runtime_error(std::string("NitroShimmerText.shimmerBaseColor: ") + exc.what());
       }
     }()),
-    shimmerHighlightColor([&]() -> CachedProp<std::optional<std::string>> {
+    shimmerHighlightColor([&]() -> CachedProp<std::optional<double>> {
       try {
         const react::RawValue* rawValue = rawProps.at("shimmerHighlightColor", nullptr, nullptr);
         if (rawValue == nullptr) return sourceProps.shimmerHighlightColor;
         const auto& [runtime, value] = (std::pair<jsi::Runtime*, jsi::Value>)*rawValue;
-        return CachedProp<std::optional<std::string>>::fromRawValue(*runtime, value, sourceProps.shimmerHighlightColor);
+        return CachedProp<std::optional<double>>::fromRawValue(*runtime, value, sourceProps.shimmerHighlightColor);
       } catch (const std::exception& exc) {
         throw std::runtime_error(std::string("NitroShimmerText.shimmerHighlightColor: ") + exc.what());
       }
@@ -106,6 +96,26 @@ namespace margelo::nitro::nitroshimmertext::views {
         throw std::runtime_error(std::string("NitroShimmerText.fontWeight: ") + exc.what());
       }
     }()),
+    allowFontScaling([&]() -> CachedProp<std::optional<bool>> {
+      try {
+        const react::RawValue* rawValue = rawProps.at("allowFontScaling", nullptr, nullptr);
+        if (rawValue == nullptr) return sourceProps.allowFontScaling;
+        const auto& [runtime, value] = (std::pair<jsi::Runtime*, jsi::Value>)*rawValue;
+        return CachedProp<std::optional<bool>>::fromRawValue(*runtime, value, sourceProps.allowFontScaling);
+      } catch (const std::exception& exc) {
+        throw std::runtime_error(std::string("NitroShimmerText.allowFontScaling: ") + exc.what());
+      }
+    }()),
+    onContentSizeChange([&]() -> CachedProp<std::optional<std::function<void(double /* width */, double /* height */)>>> {
+      try {
+        const react::RawValue* rawValue = rawProps.at("onContentSizeChange", nullptr, nullptr);
+        if (rawValue == nullptr) return sourceProps.onContentSizeChange;
+        const auto& [runtime, value] = (std::pair<jsi::Runtime*, jsi::Value>)*rawValue;
+        return CachedProp<std::optional<std::function<void(double /* width */, double /* height */)>>>::fromRawValue(*runtime, value.asObject(*runtime).getProperty(*runtime, PropNameIDCache::get(*runtime, "f")), sourceProps.onContentSizeChange);
+      } catch (const std::exception& exc) {
+        throw std::runtime_error(std::string("NitroShimmerText.onContentSizeChange: ") + exc.what());
+      }
+    }()),
     hybridRef([&]() -> CachedProp<std::optional<std::function<void(const std::shared_ptr<HybridNitroShimmerTextSpec>& /* ref */)>>> {
       try {
         const react::RawValue* rawValue = rawProps.at("hybridRef", nullptr, nullptr);
@@ -119,7 +129,6 @@ namespace margelo::nitro::nitroshimmertext::views {
 
   bool HybridNitroShimmerTextProps::filterObjectKeys(const std::string& propName) {
     switch (hashString(propName)) {
-      case hashString("onContentSizeChange"): return true;
       case hashString("text"): return true;
       case hashString("shimmerBaseColor"): return true;
       case hashString("shimmerHighlightColor"): return true;
@@ -127,6 +136,8 @@ namespace margelo::nitro::nitroshimmertext::views {
       case hashString("fontSize"): return true;
       case hashString("fontFamily"): return true;
       case hashString("fontWeight"): return true;
+      case hashString("allowFontScaling"): return true;
+      case hashString("onContentSizeChange"): return true;
       case hashString("hybridRef"): return true;
       default: return false;
     }
