@@ -56,3 +56,11 @@ Expanded both filters to include those inputs, enforced the lockfile in device j
 - [Android build failure](https://github.com/aparedes/react-native-nitro-shimmer-text/actions/runs/35821249719)
 - [Both device test failures](https://github.com/aparedes/react-native-nitro-shimmer-text/actions/runs/35821249720)
 - [SDK action v3 inputs](https://github.com/android-actions/setup-android/blob/v3/action.yml)
+
+## Resolution (2026-09-23)
+
+- **P1 config path:** `scripts/copy-build-assets.cjs` runs after `bob build` and copies the generated config to `lib/nitrogen/...`, where the compiled entry points resolve it. `bun run test:package` checks every packed entry's JSON import, and the fast CI job runs it.
+- **P2 colors:** the JS wrapper resolves `DynamicColorIOS` for the current `useColorScheme()` (light/dark only; high-contrast variants are not distinguished). `PlatformColor` has no ARGB value, so it still falls back to the default. It now logs a dev warning, and the JSDoc and README state that it is unsupported. Native resolution would need a spec change.
+- **P2 empty text:** both platforms now report `0×0` for empty text, so the wrapper collapses the auto-size.
+- **P2 duration:** non-finite or non-positive durations fall back to 1500 ms in the wrapper and in both native setters.
+- New harness tests cover the cleared-text collapse, `DynamicColorIOS` (iOS only) and negative duration. All 20 passed on iOS 27 / iPhone 17 after a fresh Debug build. Android device tests still need a CI run.

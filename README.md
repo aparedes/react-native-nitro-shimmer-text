@@ -53,8 +53,8 @@ The view auto-sizes to its text content when no explicit `width`/`height` is pro
 | Prop | Type | Default | Description |
 |---|---|---|---|
 | `text` | `string` | — | The text to render. Required. |
-| `shimmerBaseColor` | `ColorValue` | `#808080` | Base text color. Any React Native color (`#RGB`, `#RRGGBBAA`, `rgb()`, named colors…). |
-| `shimmerHighlightColor` | `ColorValue` | `#FFFFFF` | Color of the moving highlight band. |
+| `shimmerBaseColor` | `ColorValue` | `#808080` | Base text color. Any React Native color (`#RGB`, `#RRGGBBAA`, `rgb()`, named colors…) and `DynamicColorIOS`. `PlatformColor` is not supported and falls back to the default. |
+| `shimmerHighlightColor` | `ColorValue` | `#FFFFFF` | Color of the moving highlight band. Accepts the same values as `shimmerBaseColor`. |
 | `shimmerDuration` | `number` (ms) | `1500` | Duration of one shimmer sweep. |
 | `fontSize` | `number` | `16` | Font size in points (iOS) / sp (Android). |
 | `fontFamily` | `string` | system | Font family name. Custom fonts linked into the app (iOS) or placed in `assets/fonts` / `res/font` (Android) are supported. Falls back to system if unavailable. |

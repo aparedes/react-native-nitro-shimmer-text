@@ -165,7 +165,11 @@ class HybridNitroShimmerText: HybridNitroShimmerTextSpec {
     }
 
     var shimmerDuration: Double? = nil {
-        didSet { shimmerLabel.shimmerDuration = (shimmerDuration ?? 1500) / 1000.0 }
+        didSet {
+            let value = shimmerDuration ?? 1500
+            let milliseconds = value.isFinite && value > 0 ? max(1, value) : 1500
+            shimmerLabel.shimmerDuration = milliseconds / 1000.0
+        }
     }
 
     var fontSize: Double? = nil {
@@ -201,11 +205,14 @@ class HybridNitroShimmerText: HybridNitroShimmerTextSpec {
     }
 
     private func reportContentSize() {
+        if text.isEmpty {
+            onContentSizeChange?(0, 0)
+            return
+        }
         // Measure text using an unconstrained fit — works before the view is in a window
         let size = shimmerLabel.baseLabel.sizeThatFits(
             CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
         )
-        guard size.width > 0, size.height > 0 else { return }
         onContentSizeChange?(Double(size.width), Double(size.height))
     }
 

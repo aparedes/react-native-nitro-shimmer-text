@@ -258,7 +258,14 @@ class HybridNitroShimmerText(val context: ThemedReactContext) : HybridNitroShimm
     private var _shimmerDuration: Double? = null
     override var shimmerDuration: Double?
         get() = _shimmerDuration
-        set(value) { _shimmerDuration = value; shimmerView.animDuration = (value ?: 1500.0).toLong() }
+        set(value) {
+            _shimmerDuration = value
+            shimmerView.animDuration = if (value != null && value.isFinite() && value > 0) {
+                value.toLong().coerceAtLeast(1L)
+            } else {
+                1500L
+            }
+        }
 
     private var _fontSize: Double? = null
     override var fontSize: Double?
@@ -292,7 +299,6 @@ class HybridNitroShimmerText(val context: ThemedReactContext) : HybridNitroShimm
 
     override fun afterUpdate() {
         val (widthPx, heightPx) = shimmerView.measureNaturalSize()
-        if (widthPx == 0f || heightPx == 0f) return
         // Paint returns pixels; React Native layout expects dp
         val density = context.resources.displayMetrics.density
         _onContentSizeChange?.invoke((widthPx / density).toDouble(), (heightPx / density).toDouble())

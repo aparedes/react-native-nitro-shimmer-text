@@ -1,7 +1,17 @@
 import { screen } from '@react-native-harness/ui';
-import type { LayoutChangeEvent, LayoutRectangle } from 'react-native';
+import {
+  DynamicColorIOS,
+  type LayoutChangeEvent,
+  type LayoutRectangle,
+  Platform,
+  processColor,
+} from 'react-native';
 import { describe, expect, it, render, waitFor } from 'react-native-harness';
-import { NitroShimmerText } from 'react-native-nitro-shimmer-text';
+import { callback } from 'react-native-nitro-modules';
+import {
+  NitroShimmerText,
+  type NitroShimmerTextRef,
+} from 'react-native-nitro-shimmer-text';
 
 const FONT_WEIGHTS = [
   'normal',
@@ -26,6 +36,15 @@ function observeLayout() {
     onLayout: (event: LayoutChangeEvent) => {
       layout = event.nativeEvent.layout;
     },
+    getLayout: (assertLayout: (layout: LayoutRectangle) => void) =>
+      waitFor(
+        () => {
+          if (!layout) throw new Error('Waiting for native layout');
+          assertLayout(layout);
+          return layout;
+        },
+        { timeout: 3000 },
+      ),
     getSize: (assertSize?: (size: LayoutRectangle) => void) =>
       waitFor(
         () => {
@@ -60,6 +79,55 @@ describe('NitroShimmerText mount', () => {
         text=""
         style={{ width: 10, height: 10 }}
       />,
+    );
+    expect(await screen.findByTestId(TEST_ID)).not.toBeNull();
+  });
+
+  it('collapses its auto-size when text is cleared', async () => {
+    const layout = observeLayout();
+    const { rerender } = await render(
+      <NitroShimmerText
+        testID={TEST_ID}
+        text="HELLO"
+        onLayout={layout.onLayout}
+      />,
+    );
+    await layout.getSize();
+    await rerender(
+      <NitroShimmerText testID={TEST_ID} text="" onLayout={layout.onLayout} />,
+    );
+    await layout.getLayout((empty) => {
+      expect(empty.width).toBe(0);
+    });
+  });
+
+  (Platform.OS === 'ios' ? it : it.skip)(
+    'resolves DynamicColorIOS to an ARGB color',
+    async () => {
+      let view: NitroShimmerTextRef | undefined;
+      await render(
+        <NitroShimmerText
+          testID={TEST_ID}
+          text="HELLO"
+          shimmerBaseColor={DynamicColorIOS({ light: 'red', dark: 'red' })}
+          hybridRef={callback((ref: NitroShimmerTextRef) => {
+            view = ref;
+          })}
+        />,
+      );
+      await waitFor(
+        () => {
+          if (!view) throw new Error('Waiting for hybrid ref');
+          expect(view.shimmerBaseColor).toBe(processColor('red'));
+        },
+        { timeout: 3000 },
+      );
+    },
+  );
+
+  it('falls back from an invalid duration without crashing', async () => {
+    await render(
+      <NitroShimmerText testID={TEST_ID} text="HELLO" shimmerDuration={-100} />,
     );
     expect(await screen.findByTestId(TEST_ID)).not.toBeNull();
   });

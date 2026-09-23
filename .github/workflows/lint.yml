@@ -31,6 +31,9 @@ jobs:
       - name: Typecheck example and device tests
         run: bunx tsc --noEmit -p example/tsconfig.json
 
+      - name: Verify published package assets
+        run: bun run test:package
+
       - name: Lint
         run: bun run lint
 

@@ -15,7 +15,8 @@
     "fmt:check": "bunx oxfmt --check .",
     "clean": "git clean -dfX",
     "release": "semantic-release",
-    "build": "bun run typecheck && bob build",
+    "build": "bun run typecheck && bob build && node scripts/copy-build-assets.cjs",
+    "test:package": "bun run build && node --test scripts/__tests__/package.test.cjs",
     "codegen": "nitrogen --logLevel=\"debug\" && bun run build && node post-script.js",
     "prepare": "lefthook install"
   },

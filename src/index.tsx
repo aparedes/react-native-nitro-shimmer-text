@@ -5,6 +5,7 @@ import {
   processColor,
   StyleSheet,
   type ViewProps,
+  useColorScheme,
   type ViewStyle,
 } from 'react-native';
 import {
@@ -34,9 +35,15 @@ export type NitroShimmerTextRef = HybridRef<
 export interface ShimmerTextProps extends Omit<ViewProps, 'children'> {
   /** The text to display. */
   text: string;
-  /** Base text color. Accepts any React Native color. Defaults to "#808080". */
+  /**
+   * Base text color. Accepts color strings, numbers and `DynamicColorIOS`.
+   * `PlatformColor` is not supported and falls back to the default. Defaults to "#808080".
+   */
   shimmerBaseColor?: ColorValue;
-  /** Shimmer highlight color. Accepts any React Native color. Defaults to "#FFFFFF". */
+  /**
+   * Shimmer highlight color. Accepts color strings, numbers and `DynamicColorIOS`.
+   * `PlatformColor` is not supported and falls back to the default. Defaults to "#FFFFFF".
+   */
   shimmerHighlightColor?: ColorValue;
   /** Shimmer sweep duration in milliseconds. Defaults to 1500. */
   shimmerDuration?: number;
@@ -55,17 +62,43 @@ export interface ShimmerTextProps extends Omit<ViewProps, 'children'> {
   hybridRef?: ComponentProps<typeof NitroShimmerTextNative>['hybridRef'];
 }
 
-/** Converts any React Native color to the ARGB integer the native views expect. */
-function toNativeColor(color: ColorValue | undefined): number | undefined {
+type DynamicColor = { dynamic: { light: ColorValue; dark: ColorValue } };
+
+function isDynamicColor(color: ColorValue): color is ColorValue & DynamicColor {
+  return typeof color === 'object' && color != null && 'dynamic' in color;
+}
+
+/**
+ * Converts a React Native color to the ARGB integer the native views expect.
+ * `DynamicColorIOS` is resolved here for the current appearance; native-only
+ * colors (`PlatformColor`) have no ARGB value and fall back to the native default.
+ */
+function toNativeColor(
+  color: ColorValue | undefined,
+  scheme: string | null | undefined,
+): number | undefined {
   if (color == null) return undefined;
+  if (isDynamicColor(color)) {
+    return toNativeColor(
+      scheme === 'dark' ? color.dynamic.dark : color.dynamic.light,
+      scheme,
+    );
+  }
   const processed = processColor(color);
-  return typeof processed === 'number' ? processed : undefined;
+  if (typeof processed === 'number') return processed;
+  if (__DEV__) {
+    console.warn(
+      'NitroShimmerText: PlatformColor is not supported; using the default color.',
+    );
+  }
+  return undefined;
 }
 
 export function NitroShimmerText({
   style,
   shimmerBaseColor,
   shimmerHighlightColor,
+  shimmerDuration,
   ...props
 }: ShimmerTextProps) {
   const [naturalSize, setNaturalSize] = useState<{
@@ -96,13 +129,14 @@ export function NitroShimmerText({
     [],
   );
 
+  const scheme = useColorScheme();
   const baseColor = useMemo(
-    () => toNativeColor(shimmerBaseColor),
-    [shimmerBaseColor],
+    () => toNativeColor(shimmerBaseColor, scheme),
+    [shimmerBaseColor, scheme],
   );
   const highlightColor = useMemo(
-    () => toNativeColor(shimmerHighlightColor),
-    [shimmerHighlightColor],
+    () => toNativeColor(shimmerHighlightColor, scheme),
+    [shimmerHighlightColor, scheme],
   );
 
   return (
@@ -110,6 +144,13 @@ export function NitroShimmerText({
       {...props}
       shimmerBaseColor={baseColor}
       shimmerHighlightColor={highlightColor}
+      shimmerDuration={
+        shimmerDuration != null &&
+        Number.isFinite(shimmerDuration) &&
+        shimmerDuration > 0
+          ? Math.max(1, shimmerDuration)
+          : 1500
+      }
       style={[style, sizeStyle]}
       onContentSizeChange={onContentSizeChange}
     />
