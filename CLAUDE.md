@@ -10,6 +10,10 @@ All commands run from the repo root using `bun`.
 bun run typecheck      # TypeScript type check (no emit)
 bun run build          # typecheck + bob build (outputs to lib/)
 bun run codegen        # Run nitrogen codegen, build, then post-script Android workaround
+bun run lint           # oxlint (whole repo, incl. example/)
+bun run lint:fix       # oxlint with safe autofixes
+bun run fmt            # oxfmt (write)
+bun run fmt:check      # oxfmt (check only, used in CI)
 bun run clean          # git clean -dfX (removes all untracked/ignored files)
 bun run release        # semantic-release (CI only)
 ```
@@ -21,8 +25,9 @@ bun run android        # Run on Android emulator
 bun run pod            # Install CocoaPods dependencies (bundle exec pod install)
 bun run start          # Start Metro with cache reset
 bun run test           # Run Jest tests
-bun run lint           # ESLint
 ```
+
+Linting and formatting use [oxlint](https://oxc.rs/docs/guide/usage/linter) (`.oxlintrc.json`) and [oxfmt](https://oxc.rs/docs/guide/usage/formatter) (`.oxfmtrc.json`) at the repo root. `lefthook.yml` runs both on staged files pre-commit and `typecheck` pre-push; hooks are installed by the `prepare` script on `bun install`.
 
 ## Architecture
 
@@ -37,7 +42,7 @@ This is a **React Native Nitro Module** — a native view component built with [
 | Layer | Location | Language |
 |---|---|---|
 | TypeScript spec | `src/specs/nitro-shimmer-text.nitro.ts` | TypeScript |
-| JS entry point | `src/index.ts` | TypeScript |
+| JS entry point | `src/index.tsx` | TypeScript |
 | Generated bridge | `nitrogen/generated/` | C++, Swift, Kotlin (auto) |
 | iOS implementation | `ios/HybridNitroShimmerText.swift` | Swift |
 | Android implementation | `android/src/main/java/com/nitroshimmertext/HybridNitroShimmerText.kt` | Kotlin |
@@ -47,12 +52,12 @@ This is a **React Native Nitro Module** — a native view component built with [
 
 1. Edit `src/specs/nitro-shimmer-text.nitro.ts` to add/change props or methods.
 2. Run `bun run codegen` — this runs `nitrogen`, then `bob build`, then `post-script.js`.
-3. `post-script.js` applies an Android-specific workaround: it patches `NitroShimmerTextOnLoad.cpp` (removes the `margelo/nitro/` prefix) and fixes generated `*Manager.kt` import paths (`com.margelo.nitro.nitroshimmertext.*` → `com.nitroshimmertext.*`). This is required because of a namespace mismatch in how nitrogen generates Android files.
+3. `post-script.js` applies an Android-specific workaround: it patches `NitroShimmerTextOnLoad.cpp` (removes the `margelo/nitro/` prefix) and fixes generated `*Manager.kt` import paths (`com.margelo.nitro.nitroshimmertext.*` → `com.nitroshimmertext.*`). This is required because of a namespace mismatch in how nitrogen generates Android files. It also patches the generated props constructor in `HybridNitroShimmerTextComponent.cpp` to call `initializeDynamicProps`; without it, Nitro views on React Native >= 0.87 Android receive no base View props (`testID`, style, accessibility). Remove that step once [margelo/nitro#1656](https://github.com/margelo/nitro/issues/1656) is fixed upstream.
 4. Implement the new prop/method in both `ios/HybridNitroShimmerText.swift` and `android/src/main/java/com/nitroshimmertext/HybridNitroShimmerText.kt`.
 
 ### Consuming the component
 
-`src/index.ts` exports `NitroShimmerText` (a Nitro host component) and `NitroShimmerTextRef` (the ref type). The component config is loaded from the generated JSON at `nitrogen/generated/shared/json/NitroShimmerTextConfig.json`.
+`src/index.tsx` exports `NitroShimmerText` (a JS wrapper around the Nitro host component), `NitroShimmerTextRef` (the ref type), `ShimmerTextProps` and `FontWeight`. The wrapper converts colors with `processColor` (native props take ARGB numbers) and auto-sizes the view from the native `onContentSizeChange` callback. The component config is loaded from the generated JSON at `nitrogen/generated/shared/json/NitroShimmerTextConfig.json`.
 
 ### Build output
 

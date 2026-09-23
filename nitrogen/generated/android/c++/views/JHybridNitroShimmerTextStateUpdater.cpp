@@ -15,69 +15,99 @@ namespace margelo::nitro::nitroshimmertext::views {
 using namespace facebook;
 using ConcreteStateData = react::ConcreteState<HybridNitroShimmerTextState>;
 
-void JHybridNitroShimmerTextStateUpdater::updateViewProps(jni::alias_ref<jni::JClass> /* class */,
-                                           jni::alias_ref<JHybridNitroShimmerTextSpec::JavaPart> javaView,
-                                           jni::alias_ref<JStateWrapper::javaobject> stateWrapperInterface) {
-  std::shared_ptr<JHybridNitroShimmerTextSpec> hybridView = javaView->getJHybridNitroShimmerTextSpec();
-
-  // Get concrete StateWrapperImpl from passed StateWrapper interface object
-  jobject rawStateWrapper = stateWrapperInterface.get();
-  if (!stateWrapperInterface->isInstanceOf(react::StateWrapperImpl::javaClassStatic())) [[unlikely]] {
-      throw std::runtime_error("StateWrapper is not a StateWrapperImpl");
+std::shared_ptr<const HybridNitroShimmerTextProps> JHybridNitroShimmerTextStateUpdater::getPropsFromStateWrapper(
+    jni::alias_ref<JStateWrapper::javaobject> stateWrapper) {
+  if (stateWrapper.get() == nullptr) {
+    return nullptr;
   }
-  auto stateWrapper = jni::alias_ref<react::StateWrapperImpl::javaobject>{
-            static_cast<react::StateWrapperImpl::javaobject>(rawStateWrapper)};
-  std::shared_ptr<const react::State> state = stateWrapper->cthis()->getState();
+  // Get concrete StateWrapperImpl from passed StateWrapper interface object
+  jobject rawStateWrapper = stateWrapper.get();
+  if (!stateWrapper->isInstanceOf(react::StateWrapperImpl::javaClassStatic())) [[unlikely]] {
+    throw std::runtime_error("StateWrapper is not a StateWrapperImpl");
+  }
+  auto stateWrapperImpl = jni::alias_ref<react::StateWrapperImpl::javaobject>{
+    static_cast<react::StateWrapperImpl::javaobject>(rawStateWrapper)
+  };
+  std::shared_ptr<const react::State> state = stateWrapperImpl->cthis()->getState();
+  if (state == nullptr) {
+    return nullptr;
+  }
   auto concreteState = std::static_pointer_cast<const ConcreteStateData>(state);
   const HybridNitroShimmerTextState& data = concreteState->getData();
-  const std::shared_ptr<HybridNitroShimmerTextProps>& props = data.getProps();
+  const std::shared_ptr<const HybridNitroShimmerTextProps>& props = data.getProps();
   if (props == nullptr) [[unlikely]] {
-    // Props aren't set yet!
     throw std::runtime_error("HybridNitroShimmerTextState's data doesn't contain any props!");
   }
+  return props;
+}
 
-  // Update all props if they are dirty
-  if (props->onContentSizeChange.isDirty) {
-    hybridView->setOnContentSizeChange(props->onContentSizeChange.value);
-    props->onContentSizeChange.isDirty = false;
+void JHybridNitroShimmerTextStateUpdater::updateViewProps(jni::alias_ref<jni::JClass> /* class */,
+                                           jni::alias_ref<JHybridNitroShimmerTextSpec::JavaPart> javaView,
+                                           jni::alias_ref<JStateWrapper::javaobject> newState,
+                                           jni::alias_ref<JStateWrapper::javaobject> oldState) {
+  std::shared_ptr<JHybridNitroShimmerTextSpec> hybridView = javaView->getJHybridNitroShimmerTextSpec();
+  std::shared_ptr<const HybridNitroShimmerTextProps> newProps = getPropsFromStateWrapper(newState);
+  std::shared_ptr<const HybridNitroShimmerTextProps> oldProps = getPropsFromStateWrapper(oldState);
+  if (newProps == nullptr) [[unlikely]] {
+    throw std::runtime_error("Current StateWrapper doesn't contain any props!");
   }
-  if (props->text.isDirty) {
-    hybridView->setText(props->text.value);
-    props->text.isDirty = false;
+
+  // Update only props that differ from the previous State snapshot.
+  if (oldProps == nullptr
+        ? newProps->text.isProvided()
+        : !newProps->text.hasSameValue(oldProps->text)) {
+    hybridView->setText(newProps->text.get());
   }
-  if (props->shimmerBaseColor.isDirty) {
-    hybridView->setShimmerBaseColor(props->shimmerBaseColor.value);
-    props->shimmerBaseColor.isDirty = false;
+  if (oldProps == nullptr
+        ? newProps->shimmerBaseColor.isProvided()
+        : !newProps->shimmerBaseColor.hasSameValue(oldProps->shimmerBaseColor)) {
+    hybridView->setShimmerBaseColor(newProps->shimmerBaseColor.get());
   }
-  if (props->shimmerHighlightColor.isDirty) {
-    hybridView->setShimmerHighlightColor(props->shimmerHighlightColor.value);
-    props->shimmerHighlightColor.isDirty = false;
+  if (oldProps == nullptr
+        ? newProps->shimmerHighlightColor.isProvided()
+        : !newProps->shimmerHighlightColor.hasSameValue(oldProps->shimmerHighlightColor)) {
+    hybridView->setShimmerHighlightColor(newProps->shimmerHighlightColor.get());
   }
-  if (props->shimmerDuration.isDirty) {
-    hybridView->setShimmerDuration(props->shimmerDuration.value);
-    props->shimmerDuration.isDirty = false;
+  if (oldProps == nullptr
+        ? newProps->shimmerDuration.isProvided()
+        : !newProps->shimmerDuration.hasSameValue(oldProps->shimmerDuration)) {
+    hybridView->setShimmerDuration(newProps->shimmerDuration.get());
   }
-  if (props->fontSize.isDirty) {
-    hybridView->setFontSize(props->fontSize.value);
-    props->fontSize.isDirty = false;
+  if (oldProps == nullptr
+        ? newProps->fontSize.isProvided()
+        : !newProps->fontSize.hasSameValue(oldProps->fontSize)) {
+    hybridView->setFontSize(newProps->fontSize.get());
   }
-  if (props->fontFamily.isDirty) {
-    hybridView->setFontFamily(props->fontFamily.value);
-    props->fontFamily.isDirty = false;
+  if (oldProps == nullptr
+        ? newProps->fontFamily.isProvided()
+        : !newProps->fontFamily.hasSameValue(oldProps->fontFamily)) {
+    hybridView->setFontFamily(newProps->fontFamily.get());
   }
-  if (props->fontWeight.isDirty) {
-    hybridView->setFontWeight(props->fontWeight.value);
-    props->fontWeight.isDirty = false;
+  if (oldProps == nullptr
+        ? newProps->fontWeight.isProvided()
+        : !newProps->fontWeight.hasSameValue(oldProps->fontWeight)) {
+    hybridView->setFontWeight(newProps->fontWeight.get());
+  }
+  if (oldProps == nullptr
+        ? newProps->allowFontScaling.isProvided()
+        : !newProps->allowFontScaling.hasSameValue(oldProps->allowFontScaling)) {
+    hybridView->setAllowFontScaling(newProps->allowFontScaling.get());
+  }
+  if (oldProps == nullptr
+        ? newProps->onContentSizeChange.isProvided()
+        : !newProps->onContentSizeChange.hasSameValue(oldProps->onContentSizeChange)) {
+    hybridView->setOnContentSizeChange(newProps->onContentSizeChange.get());
   }
 
   // Update hybridRef if it changed
-  if (props->hybridRef.isDirty) {
+  if (oldProps == nullptr
+        ? newProps->hybridRef.isProvided()
+        : !newProps->hybridRef.hasSameValue(oldProps->hybridRef)) {
     // hybridRef changed - call it with new this
-    const auto& maybeFunc = props->hybridRef.value;
+    const auto& maybeFunc = newProps->hybridRef.get();
     if (maybeFunc.has_value()) {
       maybeFunc.value()(hybridView);
     }
-    props->hybridRef.isDirty = false;
   }
 }
 

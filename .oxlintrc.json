@@ -1,0 +1,62 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc"],
+  "jsPlugins": [
+    {
+      "name": "react-native",
+      "specifier": "oxlint-plugin-react-native"
+    },
+    {
+      "name": "react-doctor",
+      "specifier": "oxlint-plugin-react-doctor"
+    }
+  ],
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    "oxc/no-barrel-file": [
+      "error",
+      {
+        "threshold": 0
+      }
+    ],
+    "react-doctor/no-fetch-in-effect": "warn",
+    "react-doctor/no-derived-state-effect": "warn",
+    "react-native/no-inline-styles": "warn",
+    "react-native/no-raw-text": "error",
+    "react-native/no-unused-styles": "warn",
+    "eslint/no-unused-vars": [
+      "error",
+      {
+        "fix": {
+          "imports": "fix",
+          "variables": "off"
+        }
+      }
+    ]
+  },
+  "env": {
+    "builtin": true
+  },
+  "overrides": [
+    {
+      "files": ["**/__tests__/**"],
+      "rules": {
+        "react-native/no-inline-styles": "off"
+      }
+    }
+  ],
+  "ignorePatterns": [
+    "node_modules/**",
+    "lib/**",
+    "nitrogen/generated/**",
+    "android/**",
+    "ios/**",
+    "example/android/**",
+    "example/ios/**",
+    "example/vendor/**",
+    "example/.harness/**",
+    "tasks/**"
+  ]
+}

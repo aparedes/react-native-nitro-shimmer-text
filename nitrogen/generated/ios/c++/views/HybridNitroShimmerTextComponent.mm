@@ -37,6 +37,7 @@ using namespace margelo::nitro::nitroshimmertext::views;
 
 @implementation HybridNitroShimmerTextComponent {
   std::shared_ptr<HybridNitroShimmerTextSpecSwift> _hybridView;
+  BOOL _didDropView;
 }
 
 + (void) load {
@@ -50,6 +51,7 @@ using namespace margelo::nitro::nitroshimmertext::views;
 
 - (instancetype) init {
   if (self = [super init]) {
+    _props = HybridNitroShimmerTextShadowNode::defaultSharedProps();
     std::shared_ptr<HybridNitroShimmerTextSpec> hybridView = NitroShimmerText::NitroShimmerTextAutolinking::createNitroShimmerText();
     _hybridView = std::dynamic_pointer_cast<HybridNitroShimmerTextSpecSwift>(hybridView);
     [self updateView];
@@ -69,70 +71,103 @@ using namespace margelo::nitro::nitroshimmertext::views;
   [self setContentView:view];
 }
 
+- (void) notifyOnDropView {
+  // A recycled component can later be invalidated. Notify only once per mount.
+  if (_didDropView) {
+    return;
+  }
+  NitroShimmerText::HybridNitroShimmerTextSpec_cxx& swiftPart = _hybridView->getSwiftPart();
+  swiftPart.onDropView();
+  _didDropView = YES;
+}
+
 - (void) updateProps:(const std::shared_ptr<const react::Props>&)props
             oldProps:(const std::shared_ptr<const react::Props>&)oldProps {
+  // A props update marks a newly mounted or still-active component.
+  _didDropView = NO;
+
   // 1. Downcast props
-  const auto& newViewPropsConst = *std::static_pointer_cast<HybridNitroShimmerTextProps const>(props);
-  auto& newViewProps = const_cast<HybridNitroShimmerTextProps&>(newViewPropsConst);
+  const auto& newViewProps = *std::static_pointer_cast<const HybridNitroShimmerTextProps>(props);
+  const auto* oldViewProps = static_cast<const HybridNitroShimmerTextProps*>(oldProps.get());
   NitroShimmerText::HybridNitroShimmerTextSpec_cxx& swiftPart = _hybridView->getSwiftPart();
 
-  // 2. Update each prop individually
-  swiftPart.beforeUpdate();
+  // 2. Update only props that differ from the previous Props snapshot.
+  const bool hasTransactionPropChanges = oldViewProps == nullptr
+      ? newViewProps.hasAnyProvidedProps()
+      : !newViewProps.hasSameProps(*oldViewProps);
+  if (hasTransactionPropChanges) {
+    swiftPart.beforeUpdate();
 
-  // onContentSizeChange: optional
-  if (newViewProps.onContentSizeChange.isDirty) {
-    swiftPart.setOnContentSizeChange(newViewProps.onContentSizeChange.value);
-    newViewProps.onContentSizeChange.isDirty = false;
-  }
-  // text: string
-  if (newViewProps.text.isDirty) {
-    swiftPart.setText(newViewProps.text.value);
-    newViewProps.text.isDirty = false;
-  }
-  // shimmerBaseColor: optional
-  if (newViewProps.shimmerBaseColor.isDirty) {
-    swiftPart.setShimmerBaseColor(newViewProps.shimmerBaseColor.value);
-    newViewProps.shimmerBaseColor.isDirty = false;
-  }
-  // shimmerHighlightColor: optional
-  if (newViewProps.shimmerHighlightColor.isDirty) {
-    swiftPart.setShimmerHighlightColor(newViewProps.shimmerHighlightColor.value);
-    newViewProps.shimmerHighlightColor.isDirty = false;
-  }
-  // shimmerDuration: optional
-  if (newViewProps.shimmerDuration.isDirty) {
-    swiftPart.setShimmerDuration(newViewProps.shimmerDuration.value);
-    newViewProps.shimmerDuration.isDirty = false;
-  }
-  // fontSize: optional
-  if (newViewProps.fontSize.isDirty) {
-    swiftPart.setFontSize(newViewProps.fontSize.value);
-    newViewProps.fontSize.isDirty = false;
-  }
-  // fontFamily: optional
-  if (newViewProps.fontFamily.isDirty) {
-    swiftPart.setFontFamily(newViewProps.fontFamily.value);
-    newViewProps.fontFamily.isDirty = false;
-  }
-  // fontWeight: optional
-  if (newViewProps.fontWeight.isDirty) {
-    swiftPart.setFontWeight(newViewProps.fontWeight.value);
-    newViewProps.fontWeight.isDirty = false;
-  }
-
-  swiftPart.afterUpdate();
-
-  // 3. Update hybridRef if it changed
-  if (newViewProps.hybridRef.isDirty) {
-    // hybridRef changed - call it with new this
-    const auto& maybeFunc = newViewProps.hybridRef.value;
-    if (maybeFunc.has_value()) {
-      maybeFunc.value()(_hybridView);
+    // text: string
+    if (oldViewProps == nullptr
+          ? newViewProps.text.isProvided()
+          : !newViewProps.text.hasSameValue(oldViewProps->text)) {
+      swiftPart.setText(newViewProps.text.get());
     }
-    newViewProps.hybridRef.isDirty = false;
+    // shimmerBaseColor: optional
+    if (oldViewProps == nullptr
+          ? newViewProps.shimmerBaseColor.isProvided()
+          : !newViewProps.shimmerBaseColor.hasSameValue(oldViewProps->shimmerBaseColor)) {
+      swiftPart.setShimmerBaseColor(newViewProps.shimmerBaseColor.get());
+    }
+    // shimmerHighlightColor: optional
+    if (oldViewProps == nullptr
+          ? newViewProps.shimmerHighlightColor.isProvided()
+          : !newViewProps.shimmerHighlightColor.hasSameValue(oldViewProps->shimmerHighlightColor)) {
+      swiftPart.setShimmerHighlightColor(newViewProps.shimmerHighlightColor.get());
+    }
+    // shimmerDuration: optional
+    if (oldViewProps == nullptr
+          ? newViewProps.shimmerDuration.isProvided()
+          : !newViewProps.shimmerDuration.hasSameValue(oldViewProps->shimmerDuration)) {
+      swiftPart.setShimmerDuration(newViewProps.shimmerDuration.get());
+    }
+    // fontSize: optional
+    if (oldViewProps == nullptr
+          ? newViewProps.fontSize.isProvided()
+          : !newViewProps.fontSize.hasSameValue(oldViewProps->fontSize)) {
+      swiftPart.setFontSize(newViewProps.fontSize.get());
+    }
+    // fontFamily: optional
+    if (oldViewProps == nullptr
+          ? newViewProps.fontFamily.isProvided()
+          : !newViewProps.fontFamily.hasSameValue(oldViewProps->fontFamily)) {
+      swiftPart.setFontFamily(newViewProps.fontFamily.get());
+    }
+    // fontWeight: optional
+    if (oldViewProps == nullptr
+          ? newViewProps.fontWeight.isProvided()
+          : !newViewProps.fontWeight.hasSameValue(oldViewProps->fontWeight)) {
+      swiftPart.setFontWeight(newViewProps.fontWeight.get());
+    }
+    // allowFontScaling: optional
+    if (oldViewProps == nullptr
+          ? newViewProps.allowFontScaling.isProvided()
+          : !newViewProps.allowFontScaling.hasSameValue(oldViewProps->allowFontScaling)) {
+      swiftPart.setAllowFontScaling(newViewProps.allowFontScaling.get());
+    }
+    // onContentSizeChange: optional
+    if (oldViewProps == nullptr
+          ? newViewProps.onContentSizeChange.isProvided()
+          : !newViewProps.onContentSizeChange.hasSameValue(oldViewProps->onContentSizeChange)) {
+      swiftPart.setOnContentSizeChange(newViewProps.onContentSizeChange.get());
+    }
+
+    // Update hybridRef if it changed
+    if (oldViewProps == nullptr
+          ? newViewProps.hybridRef.isProvided()
+          : !newViewProps.hybridRef.hasSameValue(oldViewProps->hybridRef)) {
+      // hybridRef changed - call it with new this
+      const auto& maybeFunc = newViewProps.hybridRef.get();
+      if (maybeFunc.has_value()) {
+        maybeFunc.value()(_hybridView);
+      }
+    }
+
+    swiftPart.afterUpdate();
   }
 
-  // 4. Continue in base class
+  // 3. Continue in base class
   [super updateProps:props oldProps:oldProps];
 }
 
@@ -141,6 +176,7 @@ using namespace margelo::nitro::nitroshimmertext::views;
 }
 
 - (void)prepareForRecycle {
+  [self notifyOnDropView];
   [super prepareForRecycle];
   NitroShimmerText::HybridNitroShimmerTextSpec_cxx& swiftPart = _hybridView->getSwiftPart();
   swiftPart.maybePrepareForRecycle();
@@ -148,8 +184,7 @@ using namespace margelo::nitro::nitroshimmertext::views;
 
 #ifdef ENABLE_RCT_COMPONENT_VIEW_INVALIDATE
 - (void)invalidate {
-  NitroShimmerText::HybridNitroShimmerTextSpec_cxx& swiftPart = _hybridView->getSwiftPart();
-  swiftPart.onDropView();
+  [self notifyOnDropView];
   [super invalidate];
 }
 #endif

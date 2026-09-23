@@ -18,10 +18,15 @@ private class ShimmerLabel: UIView {
     private let highlightLabel = UILabel()
     private let maskLayer = CAGradientLayer()
 
+    /// Called when the system text size changes, so the owner can rebuild the font.
+    var onContentSizeCategoryChange: (() -> Void)?
+
     var text: String = "" {
         didSet {
+            guard text != oldValue else { return }
             baseLabel.text = text
             highlightLabel.text = text
+            accessibilityLabel = text
             updateAnimationState()
         }
     }
@@ -35,7 +40,10 @@ private class ShimmerLabel: UIView {
         didSet { baseLabel.font = labelFont; highlightLabel.font = labelFont }
     }
     var shimmerDuration: TimeInterval = 1.5 {
-        didSet { updateAnimationState() }
+        didSet {
+            guard shimmerDuration != oldValue else { return }
+            updateAnimationState()
+        }
     }
 
     override init(frame: CGRect) {
@@ -46,9 +54,16 @@ private class ShimmerLabel: UIView {
 
     private func setup() {
         clipsToBounds = true
+        // Expose a single element to VoiceOver instead of both stacked labels
+        isAccessibilityElement = true
+        accessibilityTraits = .staticText
         for label in [baseLabel, highlightLabel] {
             // Single-line keeps render and afterUpdate measurement consistent
             label.numberOfLines = 1
+            label.textAlignment = .center
+            label.lineBreakMode = .byTruncatingTail
+            label.isAccessibilityElement = false
+            label.font = labelFont
             label.translatesAutoresizingMaskIntoConstraints = false
             addSubview(label)
             NSLayoutConstraint.activate([
@@ -58,12 +73,22 @@ private class ShimmerLabel: UIView {
                 label.bottomAnchor.constraint(equalTo: bottomAnchor),
             ])
         }
+        baseLabel.textColor = baseColor
+        highlightLabel.textColor = highlightColor
         // Narrow band: transparent → white (highlight visible) → transparent
         maskLayer.colors = [UIColor.clear.cgColor, UIColor.white.cgColor, UIColor.clear.cgColor]
         maskLayer.locations = [0.3, 0.5, 0.7]
         maskLayer.startPoint = CGPoint(x: 0, y: 0.5)
         maskLayer.endPoint = CGPoint(x: 1, y: 0.5)
         highlightLabel.layer.mask = maskLayer
+
+        let center = NotificationCenter.default
+        center.addObserver(self, selector: #selector(reduceMotionChanged),
+                           name: UIAccessibility.reduceMotionStatusDidChangeNotification, object: nil)
+        center.addObserver(self, selector: #selector(appWillEnterForeground),
+                           name: UIApplication.willEnterForegroundNotification, object: nil)
+        center.addObserver(self, selector: #selector(contentSizeCategoryChanged),
+                           name: UIContentSizeCategory.didChangeNotification, object: nil)
     }
 
     override func layoutSubviews() {
@@ -78,8 +103,24 @@ private class ShimmerLabel: UIView {
         updateAnimationState()
     }
 
+    @objc private func reduceMotionChanged() {
+        updateAnimationState()
+    }
+
+    @objc private func appWillEnterForeground() {
+        // Core Animation may drop layer animations while the app is backgrounded
+        if maskLayer.animation(forKey: "shimmer") == nil { updateAnimationState() }
+    }
+
+    @objc private func contentSizeCategoryChanged() {
+        onContentSizeCategoryChange?()
+    }
+
     private func updateAnimationState() {
         let shouldAnimate = window != nil && !text.isEmpty && bounds.width > 0
+            && !UIAccessibility.isReduceMotionEnabled
+        // With no sweep, show only the base text instead of a frozen highlight band
+        highlightLabel.isHidden = !shouldAnimate
         if shouldAnimate {
             restartAnimation()
         } else {
@@ -95,6 +136,7 @@ private class ShimmerLabel: UIView {
         anim.duration = shimmerDuration
         anim.repeatCount = .infinity
         anim.timingFunction = CAMediaTimingFunction(name: .linear)
+        anim.isRemovedOnCompletion = false
         maskLayer.add(anim, forKey: "shimmer")
     }
 }
@@ -102,28 +144,32 @@ private class ShimmerLabel: UIView {
 // MARK: - HybridNitroShimmerText
 
 class HybridNitroShimmerText: HybridNitroShimmerTextSpec {
-    var view: UIView = ShimmerLabel()
-    private var shimmerLabel: ShimmerLabel { view as! ShimmerLabel }
+    private let shimmerLabel = ShimmerLabel()
+    var view: UIView { shimmerLabel }
 
     var text: String = "" {
         didSet { shimmerLabel.text = text }
     }
 
-    var shimmerBaseColor: String? = nil {
+    var shimmerBaseColor: Double? = nil {
         didSet {
-            shimmerLabel.baseColor = shimmerBaseColor.flatMap(UIColor.init(hex:))
+            shimmerLabel.baseColor = shimmerBaseColor.flatMap(UIColor.init(argb:))
                 ?? UIColor(white: 0.5, alpha: 1)
         }
     }
 
-    var shimmerHighlightColor: String? = nil {
+    var shimmerHighlightColor: Double? = nil {
         didSet {
-            shimmerLabel.highlightColor = shimmerHighlightColor.flatMap(UIColor.init(hex:)) ?? .white
+            shimmerLabel.highlightColor = shimmerHighlightColor.flatMap(UIColor.init(argb:)) ?? .white
         }
     }
 
     var shimmerDuration: Double? = nil {
-        didSet { shimmerLabel.shimmerDuration = (shimmerDuration ?? 1500) / 1000.0 }
+        didSet {
+            let value = shimmerDuration ?? 1500
+            let milliseconds = value.isFinite && value > 0 ? max(1, value) : 1500
+            shimmerLabel.shimmerDuration = milliseconds / 1000.0
+        }
     }
 
     var fontSize: Double? = nil {
@@ -138,30 +184,70 @@ class HybridNitroShimmerText: HybridNitroShimmerTextSpec {
         didSet { updateFont() }
     }
 
-    private func updateFont() {
-        let size = CGFloat(fontSize ?? 16)
-        let weight = uiFontWeight(from: fontWeight)
-        if let family = fontFamily,
-           let font = UIFont(name: family, size: size) {
-            // Apply weight via font descriptor when a custom family is set
-            let descriptor = font.fontDescriptor.addingAttributes([
-                .traits: [UIFontDescriptor.TraitKey.weight: weight]
-            ])
-            shimmerLabel.labelFont = UIFont(descriptor: descriptor, size: size)
-        } else {
-            shimmerLabel.labelFont = .systemFont(ofSize: size, weight: weight)
-        }
+    var allowFontScaling: Bool? = nil {
+        didSet { updateFont() }
     }
 
     var onContentSizeChange: ((Double, Double) -> Void)? = nil
 
+    override init() {
+        super.init()
+        shimmerLabel.labelFont = makeFont()
+        shimmerLabel.onContentSizeCategoryChange = { [weak self] in
+            guard let self, self.allowFontScaling ?? true else { return }
+            self.updateFont()
+            self.reportContentSize()
+        }
+    }
+
     func afterUpdate() {
+        reportContentSize()
+    }
+
+    private func reportContentSize() {
+        if text.isEmpty {
+            onContentSizeChange?(0, 0)
+            return
+        }
         // Measure text using an unconstrained fit — works before the view is in a window
         let size = shimmerLabel.baseLabel.sizeThatFits(
             CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
         )
-        guard size.width > 0, size.height > 0 else { return }
         onContentSizeChange?(Double(size.width), Double(size.height))
+    }
+
+    private func updateFont() {
+        shimmerLabel.labelFont = makeFont()
+    }
+
+    private func makeFont() -> UIFont {
+        let size = CGFloat(fontSize ?? 16)
+        let weight = uiFontWeight(from: fontWeight)
+        var font = fontFamily.flatMap { customFont(family: $0, size: size, weight: weight) }
+            ?? .systemFont(ofSize: size, weight: weight)
+        if allowFontScaling ?? true {
+            font = UIFontMetrics.default.scaledFont(for: font)
+        }
+        return font
+    }
+
+    /// Picks the non-italic face of `family` whose weight is closest to `weight`.
+    /// Falls back to treating `family` as a font name (e.g. "Georgia-Bold").
+    private func customFont(family: String, size: CGFloat, weight: UIFont.Weight) -> UIFont? {
+        var best: UIFont?
+        var bestDelta = CGFloat.greatestFiniteMagnitude
+        for name in UIFont.fontNames(forFamilyName: family) {
+            guard let candidate = UIFont(name: name, size: size),
+                  !candidate.fontDescriptor.symbolicTraits.contains(.traitItalic) else { continue }
+            let traits = candidate.fontDescriptor.object(forKey: .traits) as? [UIFontDescriptor.TraitKey: Any]
+            let candidateWeight = traits?[.weight] as? CGFloat ?? UIFont.Weight.regular.rawValue
+            let delta = abs(candidateWeight - weight.rawValue)
+            if delta < bestDelta {
+                best = candidate
+                bestDelta = delta
+            }
+        }
+        return best ?? UIFont(name: family, size: size)
     }
 
     private func uiFontWeight(from weight: FontWeight?) -> UIFont.Weight {
@@ -179,26 +265,16 @@ class HybridNitroShimmerText: HybridNitroShimmerTextSpec {
     }
 }
 
-// MARK: - UIColor hex init
+// MARK: - UIColor ARGB init
 
 private extension UIColor {
-    convenience init?(hex: String) {
-        var s = hex.trimmingCharacters(in: .whitespacesAndNewlines)
-        if s.hasPrefix("#") { s = String(s.dropFirst()) }
-        var rgb: UInt64 = 0
-        guard Scanner(string: s).scanHexInt64(&rgb) else { return nil }
-        switch s.count {
-        case 6:
-            self.init(red: CGFloat((rgb >> 16) & 0xFF) / 255,
-                      green: CGFloat((rgb >> 8) & 0xFF) / 255,
-                      blue: CGFloat(rgb & 0xFF) / 255,
-                      alpha: 1)
-        case 8:
-            self.init(red: CGFloat((rgb >> 24) & 0xFF) / 255,
-                      green: CGFloat((rgb >> 16) & 0xFF) / 255,
-                      blue: CGFloat((rgb >> 8) & 0xFF) / 255,
-                      alpha: CGFloat(rgb & 0xFF) / 255)
-        default: return nil
-        }
+    /// Creates a color from a `processColor` value (0xAARRGGBB, signed or unsigned).
+    convenience init?(argb value: Double) {
+        guard value.isFinite else { return nil }
+        let argb = UInt32(truncatingIfNeeded: Int64(value))
+        self.init(red: CGFloat((argb >> 16) & 0xFF) / 255,
+                  green: CGFloat((argb >> 8) & 0xFF) / 255,
+                  blue: CGFloat(argb & 0xFF) / 255,
+                  alpha: CGFloat((argb >> 24) & 0xFF) / 255)
     }
 }

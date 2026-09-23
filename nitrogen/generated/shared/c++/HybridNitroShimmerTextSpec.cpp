@@ -14,8 +14,6 @@ namespace margelo::nitro::nitroshimmertext {
     HybridObject::loadHybridMethods();
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
-      prototype.registerHybridGetter("onContentSizeChange", &HybridNitroShimmerTextSpec::getOnContentSizeChange);
-      prototype.registerHybridSetter("onContentSizeChange", &HybridNitroShimmerTextSpec::setOnContentSizeChange);
       prototype.registerHybridGetter("text", &HybridNitroShimmerTextSpec::getText);
       prototype.registerHybridSetter("text", &HybridNitroShimmerTextSpec::setText);
       prototype.registerHybridGetter("shimmerBaseColor", &HybridNitroShimmerTextSpec::getShimmerBaseColor);
@@ -30,6 +28,10 @@ namespace margelo::nitro::nitroshimmertext {
       prototype.registerHybridSetter("fontFamily", &HybridNitroShimmerTextSpec::setFontFamily);
       prototype.registerHybridGetter("fontWeight", &HybridNitroShimmerTextSpec::getFontWeight);
       prototype.registerHybridSetter("fontWeight", &HybridNitroShimmerTextSpec::setFontWeight);
+      prototype.registerHybridGetter("allowFontScaling", &HybridNitroShimmerTextSpec::getAllowFontScaling);
+      prototype.registerHybridSetter("allowFontScaling", &HybridNitroShimmerTextSpec::setAllowFontScaling);
+      prototype.registerHybridGetter("onContentSizeChange", &HybridNitroShimmerTextSpec::getOnContentSizeChange);
+      prototype.registerHybridSetter("onContentSizeChange", &HybridNitroShimmerTextSpec::setOnContentSizeChange);
     });
   }
 
