@@ -1,7 +1,7 @@
 {
   "name": "react-native-nitro-shimmer-text",
   "version": "0.1.0",
-  "description": "react-native-nitro-shimmer-text is a react native package built with Nitro",
+  "description": "Native shimmering text view for React Native, built with Nitro Modules",
   "main": "./lib/commonjs/index.js",
   "module": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
@@ -18,14 +18,15 @@
   },
   "keywords": [
     "react-native",
-    "react-native-nitro-shimmer-text"
+    "react-native-nitro-shimmer-text",
+    "shimmer",
+    "nitro",
+    "text"
   ],
   "files": [
     "src",
-    "react-native.config.js",
     "lib",
     "nitrogen",
-    "cpp",
     "nitro.json",
     "android/build.gradle",
     "android/fix-prefab.gradle",
@@ -37,7 +38,6 @@
     "ios/**/*.mm",
     "ios/**/*.cpp",
     "ios/**/*.swift",
-    "app.plugin.js",
     "*.podspec",
     "README.md"
   ],
@@ -70,8 +70,8 @@
   },
   "peerDependencies": {
     "react": "*",
-    "react-native": "*",
-    "react-native-nitro-modules": "*"
+    "react-native": ">=0.78.0",
+    "react-native-nitro-modules": "^0.35.6"
   },
   "react-native-builder-bob": {
     "source": "src",

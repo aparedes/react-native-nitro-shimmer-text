@@ -10,12 +10,20 @@ on:
       - test/harness-action
     paths:
       - "src/**"
+      - "ios/**"
+      - "android/**"
+      - "nitrogen/generated/**"
+      - "*.podspec"
       - "example/__tests__/**"
       - "example/.harness/**"
       - ".github/workflows/harness-tests.yml"
   pull_request:
     paths:
       - "src/**"
+      - "ios/**"
+      - "android/**"
+      - "nitrogen/generated/**"
+      - "*.podspec"
       - "example/__tests__/**"
       - "example/.harness/**"
       - ".github/workflows/harness-tests.yml"
