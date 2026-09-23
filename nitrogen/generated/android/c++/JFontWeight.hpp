@@ -15,7 +15,7 @@ namespace margelo::nitro::nitroshimmertext {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "FontWeight" and the the Kotlin enum "FontWeight".
+   * The C++ JNI bridge between the C++ enum "FontWeight" and the Kotlin enum "FontWeight".
    */
   struct JFontWeight final: public jni::JavaClass<JFontWeight> {
   public:

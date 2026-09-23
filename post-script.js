@@ -15,7 +15,7 @@ const { readdir, readFile, writeFile } = require('node:fs/promises');
 const GENERATED = path.join(process.cwd(), 'nitrogen/generated');
 const VIEW_MANAGER_DIR = path.join(
   GENERATED,
-  'android/kotlin/com/margelo/nitro/nitroshimmertext/views'
+  'android/kotlin/com/margelo/nitro/nitroshimmertext/views',
 );
 
 const replaceInFile = async (file, pattern, replacement) => {
@@ -27,32 +27,32 @@ const iosWorkaround = async () => {
   await replaceInFile(
     path.join(GENERATED, 'ios/swift/FontWeight.swift'),
     /\.([1-9]00)\b/g,
-    '._$1'
+    '._$1',
   );
   await replaceInFile(
     path.join(GENERATED, 'shared/c++/FontWeight.hpp'),
     /SWIFT_NAME\(([1-9]00)\)/g,
-    'SWIFT_NAME(_$1)'
+    'SWIFT_NAME(_$1)',
   );
 };
 
 const androidWorkaround = async () => {
   const viewManagerFiles = (await readdir(VIEW_MANAGER_DIR)).filter((file) =>
-    file.endsWith('Manager.kt')
+    file.endsWith('Manager.kt'),
   );
   await Promise.all(
     viewManagerFiles.map((file) =>
       replaceInFile(
         path.join(VIEW_MANAGER_DIR, file),
         /com\.margelo\.nitro\.nitroshimmertext\.\*/g,
-        'com.nitroshimmertext.*'
-      )
-    )
+        'com.nitroshimmertext.*',
+      ),
+    ),
   );
   await replaceInFile(
     path.join(GENERATED, 'android/NitroShimmerTextOnLoad.cpp'),
     /margelo\/nitro\//g,
-    ''
+    '',
   );
 };
 

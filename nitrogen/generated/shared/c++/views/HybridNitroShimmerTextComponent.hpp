@@ -7,14 +7,15 @@
 
 #pragma once
 
-#include <optional>
-#include <NitroModules/NitroDefines.hpp>
-#include <NitroModules/NitroHash.hpp>
-#include <NitroModules/CachedProp.hpp>
-#include <react/renderer/core/ConcreteComponentDescriptor.h>
-#include <react/renderer/core/PropsParserContext.h>
+#include <NitroModules/ReactProp.hpp>
+#include <NitroModules/ViewComponentDescriptor.hpp>
+#include <NitroModules/ViewPropsHolderState.hpp>
 #include <react/renderer/components/view/ConcreteViewShadowNode.h>
 #include <react/renderer/components/view/ViewProps.h>
+#include <react/renderer/core/PropsParserContext.h>
+#include <react/renderer/core/RawProps.h>
+
+#include <string>
 
 #include <string>
 #include <optional>
@@ -43,16 +44,44 @@ namespace margelo::nitro::nitroshimmertext::views {
                                 const react::RawProps& rawProps);
 
   public:
-    CachedProp<std::string> text;
-    CachedProp<std::optional<double>> shimmerBaseColor;
-    CachedProp<std::optional<double>> shimmerHighlightColor;
-    CachedProp<std::optional<double>> shimmerDuration;
-    CachedProp<std::optional<double>> fontSize;
-    CachedProp<std::optional<std::string>> fontFamily;
-    CachedProp<std::optional<FontWeight>> fontWeight;
-    CachedProp<std::optional<bool>> allowFontScaling;
-    CachedProp<std::optional<std::function<void(double /* width */, double /* height */)>>> onContentSizeChange;
-    CachedProp<std::optional<std::function<void(const std::shared_ptr<HybridNitroShimmerTextSpec>& /* ref */)>>> hybridRef;
+    nitro::ReactProp<std::string> text;
+    nitro::ReactProp<std::optional<double>> shimmerBaseColor;
+    nitro::ReactProp<std::optional<double>> shimmerHighlightColor;
+    nitro::ReactProp<std::optional<double>> shimmerDuration;
+    nitro::ReactProp<std::optional<double>> fontSize;
+    nitro::ReactProp<std::optional<std::string>> fontFamily;
+    nitro::ReactProp<std::optional<FontWeight>> fontWeight;
+    nitro::ReactProp<std::optional<bool>> allowFontScaling;
+    nitro::ReactProp<std::optional<std::function<void(double /* width */, double /* height */)>>> onContentSizeChange;
+    nitro::ReactProp<std::optional<std::function<void(const std::shared_ptr<HybridNitroShimmerTextSpec>& /* ref */)>>> hybridRef;
+
+    [[nodiscard]]
+    bool hasSameProps(const HybridNitroShimmerTextProps& other) const noexcept {
+      return text.hasSameValue(other.text) &&
+             shimmerBaseColor.hasSameValue(other.shimmerBaseColor) &&
+             shimmerHighlightColor.hasSameValue(other.shimmerHighlightColor) &&
+             shimmerDuration.hasSameValue(other.shimmerDuration) &&
+             fontSize.hasSameValue(other.fontSize) &&
+             fontFamily.hasSameValue(other.fontFamily) &&
+             fontWeight.hasSameValue(other.fontWeight) &&
+             allowFontScaling.hasSameValue(other.allowFontScaling) &&
+             onContentSizeChange.hasSameValue(other.onContentSizeChange) &&
+             hybridRef.hasSameValue(other.hybridRef);
+    }
+
+    [[nodiscard]]
+    bool hasAnyProvidedProps() const noexcept {
+      return text.isProvided() ||
+             shimmerBaseColor.isProvided() ||
+             shimmerHighlightColor.isProvided() ||
+             shimmerDuration.isProvided() ||
+             fontSize.isProvided() ||
+             fontFamily.isProvided() ||
+             fontWeight.isProvided() ||
+             allowFontScaling.isProvided() ||
+             onContentSizeChange.isProvided() ||
+             hybridRef.isProvided();
+    }
 
   private:
     static bool filterObjectKeys(const std::string& propName);
@@ -61,32 +90,7 @@ namespace margelo::nitro::nitroshimmertext::views {
   /**
    * State for the "NitroShimmerText" View.
    */
-  class HybridNitroShimmerTextState final {
-  public:
-    HybridNitroShimmerTextState() = default;
-    explicit HybridNitroShimmerTextState(const std::shared_ptr<HybridNitroShimmerTextProps>& props):
-      _props(props) {}
-
-  public:
-    [[nodiscard]]
-    const std::shared_ptr<HybridNitroShimmerTextProps>& getProps() const {
-      return _props;
-    }
-
-  public:
-#ifdef ANDROID
-  HybridNitroShimmerTextState(const HybridNitroShimmerTextState& /* previousState */, folly::dynamic /* data */) {}
-  folly::dynamic getDynamic() const {
-    throw std::runtime_error("HybridNitroShimmerTextState does not support folly!");
-  }
-  react::MapBuffer getMapBuffer() const {
-    throw std::runtime_error("HybridNitroShimmerTextState does not support MapBuffer!");
-  };
-#endif
-
-  private:
-    std::shared_ptr<HybridNitroShimmerTextProps> _props;
-  };
+  using HybridNitroShimmerTextState = nitro::ViewPropsHolderState<HybridNitroShimmerTextProps>;
 
   /**
    * The Shadow Node for the "NitroShimmerText" View.
@@ -99,21 +103,7 @@ namespace margelo::nitro::nitroshimmertext::views {
   /**
    * The Component Descriptor for the "NitroShimmerText" View.
    */
-  class HybridNitroShimmerTextComponentDescriptor final: public react::ConcreteComponentDescriptor<HybridNitroShimmerTextShadowNode> {
-  public:
-    explicit HybridNitroShimmerTextComponentDescriptor(const react::ComponentDescriptorParameters& parameters);
-
-  public:
-    /**
-     * A faster path for cloning props - reuses the caching logic from `HybridNitroShimmerTextProps`.
-     */
-    std::shared_ptr<const react::Props> cloneProps(const react::PropsParserContext& context,
-                                                   const std::shared_ptr<const react::Props>& props,
-                                                   react::RawProps rawProps) const override;
-#ifdef ANDROID
-    void adopt(react::ShadowNode& shadowNode) const override;
-#endif
-  };
+  using HybridNitroShimmerTextComponentDescriptor = nitro::ViewComponentDescriptor<HybridNitroShimmerTextShadowNode>;
 
   /* The actual view for "NitroShimmerText" needs to be implemented in platform-specific code. */
 

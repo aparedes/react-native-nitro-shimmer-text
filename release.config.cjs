@@ -8,7 +8,7 @@ const rules = [
 ];
 
 const sortMap = Object.fromEntries(
-  rules.map((rule, index) => [rule.title, index])
+  rules.map((rule, index) => [rule.title, index]),
 );
 
 /**

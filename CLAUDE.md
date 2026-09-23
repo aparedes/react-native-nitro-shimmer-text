@@ -10,6 +10,10 @@ All commands run from the repo root using `bun`.
 bun run typecheck      # TypeScript type check (no emit)
 bun run build          # typecheck + bob build (outputs to lib/)
 bun run codegen        # Run nitrogen codegen, build, then post-script Android workaround
+bun run lint           # oxlint (whole repo, incl. example/)
+bun run lint:fix       # oxlint with safe autofixes
+bun run fmt            # oxfmt (write)
+bun run fmt:check      # oxfmt (check only, used in CI)
 bun run clean          # git clean -dfX (removes all untracked/ignored files)
 bun run release        # semantic-release (CI only)
 ```
@@ -21,8 +25,9 @@ bun run android        # Run on Android emulator
 bun run pod            # Install CocoaPods dependencies (bundle exec pod install)
 bun run start          # Start Metro with cache reset
 bun run test           # Run Jest tests
-bun run lint           # ESLint
 ```
+
+Linting and formatting use [oxlint](https://oxc.rs/docs/guide/usage/linter) (`.oxlintrc.json`) and [oxfmt](https://oxc.rs/docs/guide/usage/formatter) (`.oxfmtrc.json`) at the repo root. `lefthook.yml` runs both on staged files pre-commit and `typecheck` pre-push; hooks are installed by the `prepare` script on `bun install`.
 
 ## Architecture
 

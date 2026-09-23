@@ -90,19 +90,19 @@ export function NitroShimmerText({
         setNaturalSize((prev) =>
           prev && prev.width === width && prev.height === height
             ? prev
-            : { width, height }
+            : { width, height },
         );
       }),
-    []
+    [],
   );
 
   const baseColor = useMemo(
     () => toNativeColor(shimmerBaseColor),
-    [shimmerBaseColor]
+    [shimmerBaseColor],
   );
   const highlightColor = useMemo(
     () => toNativeColor(shimmerHighlightColor),
-    [shimmerHighlightColor]
+    [shimmerHighlightColor],
   );
 
   return (

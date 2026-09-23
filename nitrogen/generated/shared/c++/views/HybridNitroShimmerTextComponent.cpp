@@ -7,18 +7,12 @@
 
 #include "HybridNitroShimmerTextComponent.hpp"
 
-#include <string>
-#include <exception>
-#include <utility>
-#include <NitroModules/NitroDefines.hpp>
-#include <NitroModules/JSIConverter.hpp>
-#include <NitroModules/PropNameIDCache.hpp>
-#include <react/renderer/core/RawValue.h>
-#include <react/renderer/core/ShadowNode.h>
-#include <react/renderer/core/ComponentDescriptor.h>
-#include <react/renderer/components/view/ViewProps.h>
+#include <NitroModules/NitroHash.hpp>
+#include <NitroModules/ReactProp.hpp>
 
 namespace margelo::nitro::nitroshimmertext::views {
+
+  using namespace facebook;
 
   extern const char HybridNitroShimmerTextComponentName[] = "NitroShimmerText";
 
@@ -26,106 +20,16 @@ namespace margelo::nitro::nitroshimmertext::views {
                                                            const HybridNitroShimmerTextProps& sourceProps,
                                                            const react::RawProps& rawProps):
     react::ViewProps(context, sourceProps, rawProps, filterObjectKeys),
-    text([&]() -> CachedProp<std::string> {
-      try {
-        const react::RawValue* rawValue = rawProps.at("text", nullptr, nullptr);
-        if (rawValue == nullptr) return sourceProps.text;
-        const auto& [runtime, value] = (std::pair<jsi::Runtime*, jsi::Value>)*rawValue;
-        return CachedProp<std::string>::fromRawValue(*runtime, value, sourceProps.text);
-      } catch (const std::exception& exc) {
-        throw std::runtime_error(std::string("NitroShimmerText.text: ") + exc.what());
-      }
-    }()),
-    shimmerBaseColor([&]() -> CachedProp<std::optional<double>> {
-      try {
-        const react::RawValue* rawValue = rawProps.at("shimmerBaseColor", nullptr, nullptr);
-        if (rawValue == nullptr) return sourceProps.shimmerBaseColor;
-        const auto& [runtime, value] = (std::pair<jsi::Runtime*, jsi::Value>)*rawValue;
-        return CachedProp<std::optional<double>>::fromRawValue(*runtime, value, sourceProps.shimmerBaseColor);
-      } catch (const std::exception& exc) {
-        throw std::runtime_error(std::string("NitroShimmerText.shimmerBaseColor: ") + exc.what());
-      }
-    }()),
-    shimmerHighlightColor([&]() -> CachedProp<std::optional<double>> {
-      try {
-        const react::RawValue* rawValue = rawProps.at("shimmerHighlightColor", nullptr, nullptr);
-        if (rawValue == nullptr) return sourceProps.shimmerHighlightColor;
-        const auto& [runtime, value] = (std::pair<jsi::Runtime*, jsi::Value>)*rawValue;
-        return CachedProp<std::optional<double>>::fromRawValue(*runtime, value, sourceProps.shimmerHighlightColor);
-      } catch (const std::exception& exc) {
-        throw std::runtime_error(std::string("NitroShimmerText.shimmerHighlightColor: ") + exc.what());
-      }
-    }()),
-    shimmerDuration([&]() -> CachedProp<std::optional<double>> {
-      try {
-        const react::RawValue* rawValue = rawProps.at("shimmerDuration", nullptr, nullptr);
-        if (rawValue == nullptr) return sourceProps.shimmerDuration;
-        const auto& [runtime, value] = (std::pair<jsi::Runtime*, jsi::Value>)*rawValue;
-        return CachedProp<std::optional<double>>::fromRawValue(*runtime, value, sourceProps.shimmerDuration);
-      } catch (const std::exception& exc) {
-        throw std::runtime_error(std::string("NitroShimmerText.shimmerDuration: ") + exc.what());
-      }
-    }()),
-    fontSize([&]() -> CachedProp<std::optional<double>> {
-      try {
-        const react::RawValue* rawValue = rawProps.at("fontSize", nullptr, nullptr);
-        if (rawValue == nullptr) return sourceProps.fontSize;
-        const auto& [runtime, value] = (std::pair<jsi::Runtime*, jsi::Value>)*rawValue;
-        return CachedProp<std::optional<double>>::fromRawValue(*runtime, value, sourceProps.fontSize);
-      } catch (const std::exception& exc) {
-        throw std::runtime_error(std::string("NitroShimmerText.fontSize: ") + exc.what());
-      }
-    }()),
-    fontFamily([&]() -> CachedProp<std::optional<std::string>> {
-      try {
-        const react::RawValue* rawValue = rawProps.at("fontFamily", nullptr, nullptr);
-        if (rawValue == nullptr) return sourceProps.fontFamily;
-        const auto& [runtime, value] = (std::pair<jsi::Runtime*, jsi::Value>)*rawValue;
-        return CachedProp<std::optional<std::string>>::fromRawValue(*runtime, value, sourceProps.fontFamily);
-      } catch (const std::exception& exc) {
-        throw std::runtime_error(std::string("NitroShimmerText.fontFamily: ") + exc.what());
-      }
-    }()),
-    fontWeight([&]() -> CachedProp<std::optional<FontWeight>> {
-      try {
-        const react::RawValue* rawValue = rawProps.at("fontWeight", nullptr, nullptr);
-        if (rawValue == nullptr) return sourceProps.fontWeight;
-        const auto& [runtime, value] = (std::pair<jsi::Runtime*, jsi::Value>)*rawValue;
-        return CachedProp<std::optional<FontWeight>>::fromRawValue(*runtime, value, sourceProps.fontWeight);
-      } catch (const std::exception& exc) {
-        throw std::runtime_error(std::string("NitroShimmerText.fontWeight: ") + exc.what());
-      }
-    }()),
-    allowFontScaling([&]() -> CachedProp<std::optional<bool>> {
-      try {
-        const react::RawValue* rawValue = rawProps.at("allowFontScaling", nullptr, nullptr);
-        if (rawValue == nullptr) return sourceProps.allowFontScaling;
-        const auto& [runtime, value] = (std::pair<jsi::Runtime*, jsi::Value>)*rawValue;
-        return CachedProp<std::optional<bool>>::fromRawValue(*runtime, value, sourceProps.allowFontScaling);
-      } catch (const std::exception& exc) {
-        throw std::runtime_error(std::string("NitroShimmerText.allowFontScaling: ") + exc.what());
-      }
-    }()),
-    onContentSizeChange([&]() -> CachedProp<std::optional<std::function<void(double /* width */, double /* height */)>>> {
-      try {
-        const react::RawValue* rawValue = rawProps.at("onContentSizeChange", nullptr, nullptr);
-        if (rawValue == nullptr) return sourceProps.onContentSizeChange;
-        const auto& [runtime, value] = (std::pair<jsi::Runtime*, jsi::Value>)*rawValue;
-        return CachedProp<std::optional<std::function<void(double /* width */, double /* height */)>>>::fromRawValue(*runtime, value.asObject(*runtime).getProperty(*runtime, PropNameIDCache::get(*runtime, "f")), sourceProps.onContentSizeChange);
-      } catch (const std::exception& exc) {
-        throw std::runtime_error(std::string("NitroShimmerText.onContentSizeChange: ") + exc.what());
-      }
-    }()),
-    hybridRef([&]() -> CachedProp<std::optional<std::function<void(const std::shared_ptr<HybridNitroShimmerTextSpec>& /* ref */)>>> {
-      try {
-        const react::RawValue* rawValue = rawProps.at("hybridRef", nullptr, nullptr);
-        if (rawValue == nullptr) return sourceProps.hybridRef;
-        const auto& [runtime, value] = (std::pair<jsi::Runtime*, jsi::Value>)*rawValue;
-        return CachedProp<std::optional<std::function<void(const std::shared_ptr<HybridNitroShimmerTextSpec>& /* ref */)>>>::fromRawValue(*runtime, value.asObject(*runtime).getProperty(*runtime, PropNameIDCache::get(*runtime, "f")), sourceProps.hybridRef);
-      } catch (const std::exception& exc) {
-        throw std::runtime_error(std::string("NitroShimmerText.hybridRef: ") + exc.what());
-      }
-    }()) { }
+    text(nitro::ReactProp<std::string>::fromRawValue("NitroShimmerText", "text", rawProps, sourceProps.text)),
+    shimmerBaseColor(nitro::ReactProp<std::optional<double>>::fromRawValue("NitroShimmerText", "shimmerBaseColor", rawProps, sourceProps.shimmerBaseColor)),
+    shimmerHighlightColor(nitro::ReactProp<std::optional<double>>::fromRawValue("NitroShimmerText", "shimmerHighlightColor", rawProps, sourceProps.shimmerHighlightColor)),
+    shimmerDuration(nitro::ReactProp<std::optional<double>>::fromRawValue("NitroShimmerText", "shimmerDuration", rawProps, sourceProps.shimmerDuration)),
+    fontSize(nitro::ReactProp<std::optional<double>>::fromRawValue("NitroShimmerText", "fontSize", rawProps, sourceProps.fontSize)),
+    fontFamily(nitro::ReactProp<std::optional<std::string>>::fromRawValue("NitroShimmerText", "fontFamily", rawProps, sourceProps.fontFamily)),
+    fontWeight(nitro::ReactProp<std::optional<FontWeight>>::fromRawValue("NitroShimmerText", "fontWeight", rawProps, sourceProps.fontWeight)),
+    allowFontScaling(nitro::ReactProp<std::optional<bool>>::fromRawValue("NitroShimmerText", "allowFontScaling", rawProps, sourceProps.allowFontScaling)),
+    onContentSizeChange(nitro::ReactProp<std::optional<std::function<void(double /* width */, double /* height */)>>>::fromRawValue("NitroShimmerText", "onContentSizeChange", rawProps, sourceProps.onContentSizeChange)),
+    hybridRef(nitro::ReactProp<std::optional<std::function<void(const std::shared_ptr<HybridNitroShimmerTextSpec>& /* ref */)>>>::fromRawValue("NitroShimmerText", "hybridRef", rawProps, sourceProps.hybridRef)) { }
 
   bool HybridNitroShimmerTextProps::filterObjectKeys(const std::string& propName) {
     switch (hashString(propName)) {
@@ -142,30 +46,5 @@ namespace margelo::nitro::nitroshimmertext::views {
       default: return false;
     }
   }
-
-  HybridNitroShimmerTextComponentDescriptor::HybridNitroShimmerTextComponentDescriptor(const react::ComponentDescriptorParameters& parameters)
-    : ConcreteComponentDescriptor(parameters,
-                                  react::RawPropsParser(/* enableJsiParser */ true)) {}
-
-  std::shared_ptr<const react::Props> HybridNitroShimmerTextComponentDescriptor::cloneProps(const react::PropsParserContext& context,
-                                                                                            const std::shared_ptr<const react::Props>& props,
-                                                                                            react::RawProps rawProps) const {
-    // 1. Prepare raw props parser
-    rawProps.parse(rawPropsParser_);
-    // 2. Copy props with Nitro's cached copy constructor
-    return HybridNitroShimmerTextShadowNode::Props(context, /* & */ rawProps, props);
-  }
-
-#ifdef ANDROID
-  void HybridNitroShimmerTextComponentDescriptor::adopt(react::ShadowNode& shadowNode) const {
-    // This is called immediately after `ShadowNode` is created, cloned or in progress.
-    // On Android, we need to wrap props in our state, which gets routed through Java and later unwrapped in JNI/C++.
-    auto& concreteShadowNode = static_cast<HybridNitroShimmerTextShadowNode&>(shadowNode);
-    const std::shared_ptr<const HybridNitroShimmerTextProps>& constProps = concreteShadowNode.getConcreteSharedProps();
-    const std::shared_ptr<HybridNitroShimmerTextProps>& props = std::const_pointer_cast<HybridNitroShimmerTextProps>(constProps);
-    HybridNitroShimmerTextState state{props};
-    concreteShadowNode.setStateData(std::move(state));
-  }
-#endif
 
 } // namespace margelo::nitro::nitroshimmertext::views

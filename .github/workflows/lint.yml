@@ -1,4 +1,4 @@
-name: Lint & Typecheck
+name: Lint, Format & Typecheck
 
 permissions:
   contents: read
@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   lint:
-    name: Lint & Typecheck
+    name: Lint, Format & Typecheck
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -28,5 +28,11 @@ jobs:
       - name: Typecheck
         run: bun run typecheck
 
+      - name: Typecheck example and device tests
+        run: bunx tsc --noEmit -p example/tsconfig.json
+
       - name: Lint
         run: bun run lint
+
+      - name: Format check
+        run: bun run fmt:check

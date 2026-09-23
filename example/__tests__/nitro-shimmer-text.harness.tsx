@@ -1,5 +1,6 @@
 import { screen } from '@react-native-harness/ui';
-import { describe, expect, it, render } from 'react-native-harness';
+import type { LayoutChangeEvent, LayoutRectangle } from 'react-native';
+import { describe, expect, it, render, waitFor } from 'react-native-harness';
 import { NitroShimmerText } from 'react-native-nitro-shimmer-text';
 
 const FONT_WEIGHTS = [
@@ -18,20 +19,38 @@ const FONT_WEIGHTS = [
 
 const TEST_ID = 'shimmer';
 
-/** Asserts the shimmer view is mounted and returns its rendered size in pixels. */
-async function getRenderedSize() {
-  const element = await screen.findByTestId(TEST_ID);
-  const shot = await screen.screenshot(element);
-  expect(shot).not.toBeNull();
-  return { width: shot?.width ?? 0, height: shot?.height ?? 0 };
+/** Observe actual native layout in points/dp, including asynchronous auto-sizing. */
+function observeLayout() {
+  let layout: LayoutRectangle | undefined;
+  return {
+    onLayout: (event: LayoutChangeEvent) => {
+      layout = event.nativeEvent.layout;
+    },
+    getSize: (assertSize?: (size: LayoutRectangle) => void) =>
+      waitFor(
+        () => {
+          if (!layout) throw new Error('Waiting for native layout');
+          expect(layout.width).toBeGreaterThan(0);
+          expect(layout.height).toBeGreaterThan(0);
+          assertSize?.(layout);
+          return layout;
+        },
+        { timeout: 3000 },
+      ),
+  };
 }
 
 describe('NitroShimmerText mount', () => {
   it('auto-sizes to its text with only the text prop', async () => {
-    await render(<NitroShimmerText testID={TEST_ID} text="HELLO" />);
-    const size = await getRenderedSize();
-    expect(size.width).toBeGreaterThan(0);
-    expect(size.height).toBeGreaterThan(0);
+    const layout = observeLayout();
+    await render(
+      <NitroShimmerText
+        testID={TEST_ID}
+        text="HELLO"
+        onLayout={layout.onLayout}
+      />,
+    );
+    await layout.getSize();
   });
 
   it('renders empty text without crashing', async () => {
@@ -40,7 +59,7 @@ describe('NitroShimmerText mount', () => {
         testID={TEST_ID}
         text=""
         style={{ width: 10, height: 10 }}
-      />
+      />,
     );
     expect(await screen.findByTestId(TEST_ID)).not.toBeNull();
   });
@@ -53,47 +72,63 @@ describe('NitroShimmerText mount', () => {
         shimmerBaseColor="#000000"
         shimmerHighlightColor="gold"
         shimmerDuration={1200}
-      />
+      />,
     );
     expect(await screen.findByTestId(TEST_ID)).not.toBeNull();
   });
 
   it('grows with a larger fontSize', async () => {
-    await render(<NitroShimmerText testID={TEST_ID} text="HELLO" />);
-    const small = await getRenderedSize();
-    await render(
+    const layout = observeLayout();
+    const { rerender } = await render(
       <NitroShimmerText
         testID={TEST_ID}
         text="HELLO"
-        fontFamily="Georgia"
-        fontSize={32}
-      />
+        onLayout={layout.onLayout}
+      />,
     );
-    const large = await getRenderedSize();
-    expect(large.height).toBeGreaterThan(small.height);
+    const small = await layout.getSize();
+    await rerender(
+      <NitroShimmerText
+        testID={TEST_ID}
+        text="HELLO"
+        fontSize={32}
+        onLayout={layout.onLayout}
+      />,
+    );
+    await layout.getSize((large) => {
+      expect(large.width).toBeGreaterThan(small.width);
+      expect(large.height).toBeGreaterThan(small.height);
+    });
   });
 
   it('respects explicit width and height in style', async () => {
-    await render(
+    const layout = observeLayout();
+    const { rerender } = await render(
       <NitroShimmerText
         testID={TEST_ID}
         text="HELLO"
         fontSize={20}
         style={{ width: 200, height: 40 }}
-      />
+        onLayout={layout.onLayout}
+      />,
     );
-    const wide = await getRenderedSize();
-    await render(
+    await layout.getSize((wide) => {
+      expect(wide.width).toBeCloseTo(200, 0);
+      expect(wide.height).toBeCloseTo(40, 0);
+    });
+    await rerender(
       <NitroShimmerText
         testID={TEST_ID}
         text="HELLO"
         fontSize={20}
         style={[{ width: 100 }, { height: 20 }]}
-      />
+        onLayout={layout.onLayout}
+      />,
     );
-    const half = await getRenderedSize();
-    expect(half.width).toBeLessThan(wide.width);
-    expect(half.height).toBeLessThan(wide.height);
+    await layout.getSize((half) => {
+      expect(half.width).toBeCloseTo(100, 0);
+      expect(half.height).toBeCloseTo(20, 0);
+    });
   });
 
   it('exposes its text to accessibility services', async () => {
@@ -106,7 +141,7 @@ describe('NitroShimmerText fontWeight', () => {
   for (const weight of FONT_WEIGHTS) {
     it(`renders with fontWeight="${weight}"`, async () => {
       await render(
-        <NitroShimmerText testID={TEST_ID} text="HELLO" fontWeight={weight} />
+        <NitroShimmerText testID={TEST_ID} text="HELLO" fontWeight={weight} />,
       );
       expect(await screen.findByTestId(TEST_ID)).not.toBeNull();
     });
