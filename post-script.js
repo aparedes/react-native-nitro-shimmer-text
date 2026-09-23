@@ -6,6 +6,8 @@
  *   the view manager imports so the custom package name (`com.nitroshimmertext`) resolves.
  * - iOS: renames the numeric FontWeight enum cases (`100` → `_100`), which are not valid
  *   Swift identifiers.
+ * - Shared C++: fills `Props::rawProps` in the generated props constructor so base View props
+ *   reach Android on React Native >= 0.87 (https://github.com/margelo/nitro/issues/1656).
  *
  * All replacements are idempotent, so running the script twice is safe.
  */
@@ -56,7 +58,49 @@ const androidWorkaround = async () => {
   );
 };
 
-Promise.all([androidWorkaround(), iosWorkaround()]).catch((error) => {
-  console.error('post-script failed:', error);
-  process.exit(1);
-});
+// Nitro's ViewComponentDescriptor overrides cloneProps without calling
+// initializeDynamicProps. Since React Native 0.87 the Props constructor no longer
+// fills `rawProps`, which Android serializes to Java to apply base View props
+// (testID, style, accessibility...). Fill it from the generated constructor so
+// Nitro's own props stay filtered out. Remove once upstream ships a fix:
+// https://github.com/margelo/nitro/issues/1656
+const RAW_PROPS_MARKER = 'margelo/nitro/issues/1656';
+const rawPropsWorkaround = async () => {
+  const file = path.join(
+    GENERATED,
+    'shared/c++/views/HybridNitroShimmerTextComponent.cpp',
+  );
+  let content = await readFile(file, { encoding: 'utf8' });
+  if (content.includes(RAW_PROPS_MARKER)) return;
+
+  const include = '#include <NitroModules/ReactProp.hpp>\n';
+  const propsConstructor =
+    /(HybridNitroShimmerTextProps::HybridNitroShimmerTextProps\(const react::PropsParserContext& context,[\s\S]*?\)\)) \{ \}/;
+  if (!content.includes(include) || !propsConstructor.test(content)) {
+    throw new Error(
+      `rawProps workaround: unexpected codegen output in ${file}`,
+    );
+  }
+  content = content
+    .replace(
+      include,
+      `${include}\n#ifdef ANDROID\n#include <cxxreact/ReactNativeVersion.h>\n#endif\n`,
+    )
+    .replace(
+      propsConstructor,
+      `$1 {
+#if defined(RN_SERIALIZABLE_STATE) && (REACT_NATIVE_VERSION_MAJOR > 0 || REACT_NATIVE_VERSION_MINOR >= 87)
+    // Workaround for https://github.com/margelo/nitro/issues/1656 (added by post-script.js)
+    initializeDynamicProps(sourceProps, rawProps, filterObjectKeys);
+#endif
+  }`,
+    );
+  await writeFile(file, content);
+};
+
+Promise.all([androidWorkaround(), iosWorkaround(), rawPropsWorkaround()]).catch(
+  (error) => {
+    console.error('post-script failed:', error);
+    process.exit(1);
+  },
+);

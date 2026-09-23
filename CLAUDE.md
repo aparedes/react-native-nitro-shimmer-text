@@ -52,7 +52,7 @@ This is a **React Native Nitro Module** — a native view component built with [
 
 1. Edit `src/specs/nitro-shimmer-text.nitro.ts` to add/change props or methods.
 2. Run `bun run codegen` — this runs `nitrogen`, then `bob build`, then `post-script.js`.
-3. `post-script.js` applies an Android-specific workaround: it patches `NitroShimmerTextOnLoad.cpp` (removes the `margelo/nitro/` prefix) and fixes generated `*Manager.kt` import paths (`com.margelo.nitro.nitroshimmertext.*` → `com.nitroshimmertext.*`). This is required because of a namespace mismatch in how nitrogen generates Android files.
+3. `post-script.js` applies an Android-specific workaround: it patches `NitroShimmerTextOnLoad.cpp` (removes the `margelo/nitro/` prefix) and fixes generated `*Manager.kt` import paths (`com.margelo.nitro.nitroshimmertext.*` → `com.nitroshimmertext.*`). This is required because of a namespace mismatch in how nitrogen generates Android files. It also patches the generated props constructor in `HybridNitroShimmerTextComponent.cpp` to call `initializeDynamicProps`; without it, Nitro views on React Native >= 0.87 Android receive no base View props (`testID`, style, accessibility). Remove that step once [margelo/nitro#1656](https://github.com/margelo/nitro/issues/1656) is fixed upstream.
 4. Implement the new prop/method in both `ios/HybridNitroShimmerText.swift` and `android/src/main/java/com/nitroshimmertext/HybridNitroShimmerText.kt`.
 
 ### Consuming the component

@@ -10,6 +10,10 @@
 #include <NitroModules/NitroHash.hpp>
 #include <NitroModules/ReactProp.hpp>
 
+#ifdef ANDROID
+#include <cxxreact/ReactNativeVersion.h>
+#endif
+
 namespace margelo::nitro::nitroshimmertext::views {
 
   using namespace facebook;
@@ -29,7 +33,12 @@ namespace margelo::nitro::nitroshimmertext::views {
     fontWeight(nitro::ReactProp<std::optional<FontWeight>>::fromRawValue("NitroShimmerText", "fontWeight", rawProps, sourceProps.fontWeight)),
     allowFontScaling(nitro::ReactProp<std::optional<bool>>::fromRawValue("NitroShimmerText", "allowFontScaling", rawProps, sourceProps.allowFontScaling)),
     onContentSizeChange(nitro::ReactProp<std::optional<std::function<void(double /* width */, double /* height */)>>>::fromRawValue("NitroShimmerText", "onContentSizeChange", rawProps, sourceProps.onContentSizeChange)),
-    hybridRef(nitro::ReactProp<std::optional<std::function<void(const std::shared_ptr<HybridNitroShimmerTextSpec>& /* ref */)>>>::fromRawValue("NitroShimmerText", "hybridRef", rawProps, sourceProps.hybridRef)) { }
+    hybridRef(nitro::ReactProp<std::optional<std::function<void(const std::shared_ptr<HybridNitroShimmerTextSpec>& /* ref */)>>>::fromRawValue("NitroShimmerText", "hybridRef", rawProps, sourceProps.hybridRef)) {
+#if defined(RN_SERIALIZABLE_STATE) && (REACT_NATIVE_VERSION_MAJOR > 0 || REACT_NATIVE_VERSION_MINOR >= 87)
+    // Workaround for https://github.com/margelo/nitro/issues/1656 (added by post-script.js)
+    initializeDynamicProps(sourceProps, rawProps, filterObjectKeys);
+#endif
+  }
 
   bool HybridNitroShimmerTextProps::filterObjectKeys(const std::string& propName) {
     switch (hashString(propName)) {
