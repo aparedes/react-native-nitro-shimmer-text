@@ -121,38 +121,6 @@ open class HybridNitroShimmerTextSpec_cxx {
   }
 
   // Properties
-  public final var onContentSizeChange: bridge.std__optional_std__function_void_double____width_____double____height______ {
-    @inline(__always)
-    get {
-      return { () -> bridge.std__optional_std__function_void_double____width_____double____height______ in
-        if let __unwrappedValue = self.__implementation.onContentSizeChange {
-          return bridge.create_std__optional_std__function_void_double____width_____double____height______({ () -> bridge.Func_void_double_double in
-            let __closureWrapper = Func_void_double_double(__unwrappedValue)
-            return bridge.create_Func_void_double_double(__closureWrapper.toUnsafe())
-          }())
-        } else {
-          return .init()
-        }
-      }()
-    }
-    @inline(__always)
-    set {
-      self.__implementation.onContentSizeChange = { () -> ((_ width: Double, _ height: Double) -> Void)? in
-        if bridge.has_value_std__optional_std__function_void_double____width_____double____height______(newValue) {
-          let __unwrapped = bridge.get_std__optional_std__function_void_double____width_____double____height______(newValue)
-          return { () -> (Double, Double) -> Void in
-            let __wrappedFunction = bridge.wrap_Func_void_double_double(__unwrapped)
-            return { (__width: Double, __height: Double) -> Void in
-              __wrappedFunction.call(__width, __height)
-            }
-          }()
-        } else {
-          return nil
-        }
-      }()
-    }
-  }
-  
   public final var text: std.string {
     @inline(__always)
     get {
@@ -164,12 +132,12 @@ open class HybridNitroShimmerTextSpec_cxx {
     }
   }
   
-  public final var shimmerBaseColor: bridge.std__optional_std__string_ {
+  public final var shimmerBaseColor: bridge.std__optional_double_ {
     @inline(__always)
     get {
-      return { () -> bridge.std__optional_std__string_ in
+      return { () -> bridge.std__optional_double_ in
         if let __unwrappedValue = self.__implementation.shimmerBaseColor {
-          return bridge.create_std__optional_std__string_(std.string(__unwrappedValue))
+          return bridge.create_std__optional_double_(__unwrappedValue)
         } else {
           return .init()
         }
@@ -177,10 +145,10 @@ open class HybridNitroShimmerTextSpec_cxx {
     }
     @inline(__always)
     set {
-      self.__implementation.shimmerBaseColor = { () -> String? in
-        if bridge.has_value_std__optional_std__string_(newValue) {
-          let __unwrapped = bridge.get_std__optional_std__string_(newValue)
-          return String(__unwrapped)
+      self.__implementation.shimmerBaseColor = { () -> Double? in
+        if bridge.has_value_std__optional_double_(newValue) {
+          let __unwrapped = bridge.get_std__optional_double_(newValue)
+          return __unwrapped
         } else {
           return nil
         }
@@ -188,12 +156,12 @@ open class HybridNitroShimmerTextSpec_cxx {
     }
   }
   
-  public final var shimmerHighlightColor: bridge.std__optional_std__string_ {
+  public final var shimmerHighlightColor: bridge.std__optional_double_ {
     @inline(__always)
     get {
-      return { () -> bridge.std__optional_std__string_ in
+      return { () -> bridge.std__optional_double_ in
         if let __unwrappedValue = self.__implementation.shimmerHighlightColor {
-          return bridge.create_std__optional_std__string_(std.string(__unwrappedValue))
+          return bridge.create_std__optional_double_(__unwrappedValue)
         } else {
           return .init()
         }
@@ -201,10 +169,10 @@ open class HybridNitroShimmerTextSpec_cxx {
     }
     @inline(__always)
     set {
-      self.__implementation.shimmerHighlightColor = { () -> String? in
-        if bridge.has_value_std__optional_std__string_(newValue) {
-          let __unwrapped = bridge.get_std__optional_std__string_(newValue)
-          return String(__unwrapped)
+      self.__implementation.shimmerHighlightColor = { () -> Double? in
+        if bridge.has_value_std__optional_double_(newValue) {
+          let __unwrapped = bridge.get_std__optional_double_(newValue)
+          return __unwrapped
         } else {
           return nil
         }
@@ -298,6 +266,62 @@ open class HybridNitroShimmerTextSpec_cxx {
     @inline(__always)
     set {
       self.__implementation.fontWeight = newValue.value
+    }
+  }
+  
+  public final var allowFontScaling: bridge.std__optional_bool_ {
+    @inline(__always)
+    get {
+      return { () -> bridge.std__optional_bool_ in
+        if let __unwrappedValue = self.__implementation.allowFontScaling {
+          return bridge.create_std__optional_bool_(__unwrappedValue)
+        } else {
+          return .init()
+        }
+      }()
+    }
+    @inline(__always)
+    set {
+      self.__implementation.allowFontScaling = { () -> Bool? in
+        if bridge.has_value_std__optional_bool_(newValue) {
+          let __unwrapped = bridge.get_std__optional_bool_(newValue)
+          return __unwrapped
+        } else {
+          return nil
+        }
+      }()
+    }
+  }
+  
+  public final var onContentSizeChange: bridge.std__optional_std__function_void_double____width_____double____height______ {
+    @inline(__always)
+    get {
+      return { () -> bridge.std__optional_std__function_void_double____width_____double____height______ in
+        if let __unwrappedValue = self.__implementation.onContentSizeChange {
+          return bridge.create_std__optional_std__function_void_double____width_____double____height______({ () -> bridge.Func_void_double_double in
+            let __closureWrapper = Func_void_double_double(__unwrappedValue)
+            return bridge.create_Func_void_double_double(__closureWrapper.toUnsafe())
+          }())
+        } else {
+          return .init()
+        }
+      }()
+    }
+    @inline(__always)
+    set {
+      self.__implementation.onContentSizeChange = { () -> ((_ width: Double, _ height: Double) -> Void)? in
+        if bridge.has_value_std__optional_std__function_void_double____width_____double____height______(newValue) {
+          let __unwrapped = bridge.get_std__optional_std__function_void_double____width_____double____height______(newValue)
+          return { () -> (Double, Double) -> Void in
+            let __wrappedFunction = bridge.wrap_Func_void_double_double(__unwrapped)
+            return { (__width: Double, __height: Double) -> Void in
+              __wrappedFunction.call(__width, __height)
+            }
+          }()
+        } else {
+          return nil
+        }
+      }()
     }
   }
 

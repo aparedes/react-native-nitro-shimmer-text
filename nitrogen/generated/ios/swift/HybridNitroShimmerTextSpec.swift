@@ -10,14 +10,15 @@ import NitroModules
 /// See ``HybridNitroShimmerTextSpec``
 public protocol HybridNitroShimmerTextSpec_protocol: HybridObject, HybridView {
   // Properties
-  var onContentSizeChange: ((_ width: Double, _ height: Double) -> Void)? { get set }
   var text: String { get set }
-  var shimmerBaseColor: String? { get set }
-  var shimmerHighlightColor: String? { get set }
+  var shimmerBaseColor: Double? { get set }
+  var shimmerHighlightColor: Double? { get set }
   var shimmerDuration: Double? { get set }
   var fontSize: Double? { get set }
   var fontFamily: String? { get set }
   var fontWeight: FontWeight? { get set }
+  var allowFontScaling: Bool? { get set }
+  var onContentSizeChange: ((_ width: Double, _ height: Double) -> Void)? { get set }
 
   // Methods
   

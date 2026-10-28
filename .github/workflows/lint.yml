@@ -1,0 +1,41 @@
+name: Lint, Format & Typecheck
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint, Format & Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck
+        run: bun run typecheck
+
+      - name: Typecheck example and device tests
+        run: bunx tsc --noEmit -p example/tsconfig.json
+
+      - name: Verify published package assets
+        run: bun run test:package
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Format check
+        run: bun run fmt:check

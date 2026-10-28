@@ -31,6 +31,66 @@ namespace NitroShimmerText { class HybridNitroShimmerTextSpec_cxx; }
  */
 namespace margelo::nitro::nitroshimmertext::bridge::swift {
 
+  // pragma MARK: std::optional<double>
+  /**
+   * Specialized version of `std::optional<double>`.
+   */
+  using std__optional_double_ = std::optional<double>;
+  inline std::optional<double> create_std__optional_double_(const double& value) noexcept {
+    return std::optional<double>(value);
+  }
+  inline bool has_value_std__optional_double_(const std::optional<double>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline double get_std__optional_double_(const std::optional<double>& optional) noexcept {
+    return optional.value();
+  }
+  
+  // pragma MARK: std::optional<std::string>
+  /**
+   * Specialized version of `std::optional<std::string>`.
+   */
+  using std__optional_std__string_ = std::optional<std::string>;
+  inline std::optional<std::string> create_std__optional_std__string_(const std::string& value) noexcept {
+    return std::optional<std::string>(value);
+  }
+  inline bool has_value_std__optional_std__string_(const std::optional<std::string>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline std::string get_std__optional_std__string_(const std::optional<std::string>& optional) noexcept {
+    return optional.value();
+  }
+  
+  // pragma MARK: std::optional<FontWeight>
+  /**
+   * Specialized version of `std::optional<FontWeight>`.
+   */
+  using std__optional_FontWeight_ = std::optional<FontWeight>;
+  inline std::optional<FontWeight> create_std__optional_FontWeight_(const FontWeight& value) noexcept {
+    return std::optional<FontWeight>(value);
+  }
+  inline bool has_value_std__optional_FontWeight_(const std::optional<FontWeight>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline FontWeight get_std__optional_FontWeight_(const std::optional<FontWeight>& optional) noexcept {
+    return optional.value();
+  }
+  
+  // pragma MARK: std::optional<bool>
+  /**
+   * Specialized version of `std::optional<bool>`.
+   */
+  using std__optional_bool_ = std::optional<bool>;
+  inline std::optional<bool> create_std__optional_bool_(const bool& value) noexcept {
+    return std::optional<bool>(value);
+  }
+  inline bool has_value_std__optional_bool_(const std::optional<bool>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline bool get_std__optional_bool_(const std::optional<bool>& optional) noexcept {
+    return optional.value();
+  }
+  
   // pragma MARK: std::function<void(double /* width */, double /* height */)>
   /**
    * Specialized version of `std::function<void(double, double)>`.
@@ -65,51 +125,6 @@ namespace margelo::nitro::nitroshimmertext::bridge::swift {
     return optional.has_value();
   }
   inline std::function<void(double /* width */, double /* height */)> get_std__optional_std__function_void_double____width_____double____height______(const std::optional<std::function<void(double /* width */, double /* height */)>>& optional) noexcept {
-    return optional.value();
-  }
-  
-  // pragma MARK: std::optional<std::string>
-  /**
-   * Specialized version of `std::optional<std::string>`.
-   */
-  using std__optional_std__string_ = std::optional<std::string>;
-  inline std::optional<std::string> create_std__optional_std__string_(const std::string& value) noexcept {
-    return std::optional<std::string>(value);
-  }
-  inline bool has_value_std__optional_std__string_(const std::optional<std::string>& optional) noexcept {
-    return optional.has_value();
-  }
-  inline std::string get_std__optional_std__string_(const std::optional<std::string>& optional) noexcept {
-    return optional.value();
-  }
-  
-  // pragma MARK: std::optional<double>
-  /**
-   * Specialized version of `std::optional<double>`.
-   */
-  using std__optional_double_ = std::optional<double>;
-  inline std::optional<double> create_std__optional_double_(const double& value) noexcept {
-    return std::optional<double>(value);
-  }
-  inline bool has_value_std__optional_double_(const std::optional<double>& optional) noexcept {
-    return optional.has_value();
-  }
-  inline double get_std__optional_double_(const std::optional<double>& optional) noexcept {
-    return optional.value();
-  }
-  
-  // pragma MARK: std::optional<FontWeight>
-  /**
-   * Specialized version of `std::optional<FontWeight>`.
-   */
-  using std__optional_FontWeight_ = std::optional<FontWeight>;
-  inline std::optional<FontWeight> create_std__optional_FontWeight_(const FontWeight& value) noexcept {
-    return std::optional<FontWeight>(value);
-  }
-  inline bool has_value_std__optional_FontWeight_(const std::optional<FontWeight>& optional) noexcept {
-    return optional.has_value();
-  }
-  inline FontWeight get_std__optional_FontWeight_(const std::optional<FontWeight>& optional) noexcept {
     return optional.value();
   }
   

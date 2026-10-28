@@ -10,6 +10,8 @@ import {
 export default {
   entryPoint: './index.js',
   appRegistryComponentName: 'NitroShimmerTextExample',
+  // Allow local runs alongside an existing Metro server and newer simulators.
+  metroPort: Number(process.env.HARNESS_METRO_PORT ?? 8081),
 
   runners: [
     androidPlatform({
@@ -19,7 +21,10 @@ export default {
     }),
     applePlatform({
       name: 'iphone-17',
-      device: appleSimulator('iPhone 17', '26.4'),
+      device: appleSimulator(
+        'iPhone 17',
+        process.env.HARNESS_IOS_VERSION ?? '26.4',
+      ),
       bundleId: 'com.nitroshimmertextexample',
     }),
   ],

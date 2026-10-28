@@ -16,10 +16,10 @@
 // Forward declaration of `FontWeight` to properly resolve imports.
 namespace margelo::nitro::nitroshimmertext { enum class FontWeight; }
 
-#include <functional>
-#include <optional>
 #include <string>
+#include <optional>
 #include "FontWeight.hpp"
+#include <functional>
 
 namespace margelo::nitro::nitroshimmertext {
 
@@ -48,14 +48,12 @@ namespace margelo::nitro::nitroshimmertext {
 
     public:
       // Properties
-      virtual std::optional<std::function<void(double /* width */, double /* height */)>> getOnContentSizeChange() = 0;
-      virtual void setOnContentSizeChange(const std::optional<std::function<void(double /* width */, double /* height */)>>& onContentSizeChange) = 0;
       virtual std::string getText() = 0;
       virtual void setText(const std::string& text) = 0;
-      virtual std::optional<std::string> getShimmerBaseColor() = 0;
-      virtual void setShimmerBaseColor(const std::optional<std::string>& shimmerBaseColor) = 0;
-      virtual std::optional<std::string> getShimmerHighlightColor() = 0;
-      virtual void setShimmerHighlightColor(const std::optional<std::string>& shimmerHighlightColor) = 0;
+      virtual std::optional<double> getShimmerBaseColor() = 0;
+      virtual void setShimmerBaseColor(std::optional<double> shimmerBaseColor) = 0;
+      virtual std::optional<double> getShimmerHighlightColor() = 0;
+      virtual void setShimmerHighlightColor(std::optional<double> shimmerHighlightColor) = 0;
       virtual std::optional<double> getShimmerDuration() = 0;
       virtual void setShimmerDuration(std::optional<double> shimmerDuration) = 0;
       virtual std::optional<double> getFontSize() = 0;
@@ -64,6 +62,10 @@ namespace margelo::nitro::nitroshimmertext {
       virtual void setFontFamily(const std::optional<std::string>& fontFamily) = 0;
       virtual std::optional<FontWeight> getFontWeight() = 0;
       virtual void setFontWeight(std::optional<FontWeight> fontWeight) = 0;
+      virtual std::optional<bool> getAllowFontScaling() = 0;
+      virtual void setAllowFontScaling(std::optional<bool> allowFontScaling) = 0;
+      virtual std::optional<std::function<void(double /* width */, double /* height */)>> getOnContentSizeChange() = 0;
+      virtual void setOnContentSizeChange(const std::optional<std::function<void(double /* width */, double /* height */)>>& onContentSizeChange) = 0;
 
     public:
       // Methods

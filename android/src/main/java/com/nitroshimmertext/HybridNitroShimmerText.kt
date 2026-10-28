@@ -10,10 +10,14 @@ import android.graphics.Paint
 import android.graphics.Shader
 import android.graphics.Typeface
 import android.os.Build
+import android.text.TextPaint
+import android.text.TextUtils
+import android.util.TypedValue
 import android.view.View
 import android.view.animation.LinearInterpolator
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
+import com.facebook.react.common.assets.ReactFontManager
 import com.facebook.react.uimanager.ThemedReactContext
 import com.margelo.nitro.nitroshimmertext.FontWeight
 import com.margelo.nitro.nitroshimmertext.HybridNitroShimmerTextSpec
@@ -24,15 +28,14 @@ private class ShimmerTextView(context: Context) : View(context) {
     var text: String = ""
         set(value) {
             if (field == value) return
-            val wasEmpty = field.isEmpty()
             field = value
+            contentDescription = value
             measurementsDirty = true
-            if (wasEmpty && value.isNotEmpty() && isAttachedToWindow) startAnimation()
-            else if (value.isEmpty()) animator?.cancel()
+            updateAnimationState()
             invalidate()
         }
 
-    var baseColor: Int = Color.parseColor("#808080")
+    var baseColor: Int = DEFAULT_BASE_COLOR
         set(value) {
             if (field == value) return
             field = value
@@ -40,7 +43,7 @@ private class ShimmerTextView(context: Context) : View(context) {
             invalidate()
         }
 
-    var highlightColor: Int = Color.WHITE
+    var highlightColor: Int = DEFAULT_HIGHLIGHT_COLOR
         set(value) {
             if (field == value) return
             field = value
@@ -75,28 +78,34 @@ private class ShimmerTextView(context: Context) : View(context) {
             animator?.duration = value
         }
 
-    private val basePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    private val basePaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
         textSize = textSizePx
         typeface = this@ShimmerTextView.typeface
         color = baseColor
     }
-    private val shimmerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    private val shimmerPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
         textSize = textSizePx
         typeface = this@ShimmerTextView.typeface
     }
     private val shaderMatrix = Matrix()
 
-    // Cached text measurements — recomputed only when text/font changes
+    // Cached text measurements — recomputed only when text/font/size changes
     private var measurementsDirty: Boolean = true
-    private var textWidth: Float = 0f
+    private var displayText: String = ""
     private var textX: Float = 0f
     private var textY: Float = 0f
 
     private fun ensureMeasurements() {
         if (!measurementsDirty) return
-        textWidth = if (text.isEmpty()) 0f else basePaint.measureText(text)
+        val available = width.toFloat()
+        // Truncate with an ellipsis when the view is narrower than the text (matches iOS UILabel)
+        displayText = if (text.isNotEmpty() && available > 0f && basePaint.measureText(text) > available) {
+            TextUtils.ellipsize(text, basePaint, available, TextUtils.TruncateAt.END).toString()
+        } else {
+            text
+        }
         val fm = basePaint.fontMetrics
-        textX = (width - textWidth) / 2f
+        textX = (available - basePaint.measureText(displayText)) / 2f
         textY = (height - (fm.descent + fm.ascent)) / 2f
         measurementsDirty = false
     }
@@ -116,15 +125,30 @@ private class ShimmerTextView(context: Context) : View(context) {
     // Normalised sweep position: 0 (off-screen left) → 1 (off-screen right)
     private var sweepOffset: Float = 0f
     private var animator: ValueAnimator? = null
+    private var isVisibleToUser: Boolean = true
 
     init {
         // Plain View subclasses can be flagged WILL_NOT_DRAW under hardware acceleration;
         // force onDraw to be called.
         setWillNotDraw(false)
+        importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
     }
 
-    private fun startAnimation() {
-        animator?.cancel()
+    private fun animatorsEnabled(): Boolean =
+        // Respects "Remove animations" / animator duration scale 0 in system settings
+        Build.VERSION.SDK_INT < Build.VERSION_CODES.O || ValueAnimator.areAnimatorsEnabled()
+
+    private fun updateAnimationState() {
+        val shouldAnimate = isAttachedToWindow && isVisibleToUser && text.isNotEmpty() && animatorsEnabled()
+        if (!shouldAnimate) {
+            if (animator != null) {
+                animator?.cancel()
+                animator = null
+                invalidate()
+            }
+            return
+        }
+        if (animator != null) return
         animator = ValueAnimator.ofFloat(0f, 1f).apply {
             duration = animDuration
             repeatCount = ValueAnimator.INFINITE
@@ -141,12 +165,19 @@ private class ShimmerTextView(context: Context) : View(context) {
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        if (text.isNotEmpty()) startAnimation()
+        updateAnimationState()
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        animator?.cancel()
+        updateAnimationState()
+    }
+
+    override fun onVisibilityAggregated(isVisible: Boolean) {
+        // Only called on API 24+; on older devices the animation simply keeps running while hidden
+        super.onVisibilityAggregated(isVisible)
+        isVisibleToUser = isVisible
+        updateAnimationState()
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -161,7 +192,10 @@ private class ShimmerTextView(context: Context) : View(context) {
         ensureMeasurements()
 
         // Draw base text
-        canvas.drawText(text, textX, textY, basePaint)
+        canvas.drawText(displayText, textX, textY, basePaint)
+
+        // Without a running sweep (e.g. animations disabled) show only the base text
+        if (animator == null) return
 
         // Rebuild shader only when view width or highlight color changed
         val w = width.toFloat()
@@ -183,7 +217,12 @@ private class ShimmerTextView(context: Context) : View(context) {
         shaderMatrix.setTranslate((sweepOffset * 2f - 1f) * w, 0f)
         shader.setLocalMatrix(shaderMatrix)
 
-        canvas.drawText(text, textX, textY, shimmerPaint)
+        canvas.drawText(displayText, textX, textY, shimmerPaint)
+    }
+
+    companion object {
+        val DEFAULT_BASE_COLOR: Int = Color.rgb(128, 128, 128)
+        val DEFAULT_HIGHLIGHT_COLOR: Int = Color.WHITE
     }
 }
 
@@ -200,29 +239,43 @@ class HybridNitroShimmerText(val context: ThemedReactContext) : HybridNitroShimm
         get() = _text
         set(value) { _text = value; shimmerView.text = value }
 
-    private var _shimmerBaseColor: String? = null
-    override var shimmerBaseColor: String?
+    private var _shimmerBaseColor: Double? = null
+    override var shimmerBaseColor: Double?
         get() = _shimmerBaseColor
-        set(value) { _shimmerBaseColor = value; shimmerView.baseColor = parseColor(value, "#808080") }
+        set(value) {
+            _shimmerBaseColor = value
+            shimmerView.baseColor = toColorInt(value, ShimmerTextView.DEFAULT_BASE_COLOR)
+        }
 
-    private var _shimmerHighlightColor: String? = null
-    override var shimmerHighlightColor: String?
+    private var _shimmerHighlightColor: Double? = null
+    override var shimmerHighlightColor: Double?
         get() = _shimmerHighlightColor
-        set(value) { _shimmerHighlightColor = value; shimmerView.highlightColor = parseColor(value, "#FFFFFF") }
+        set(value) {
+            _shimmerHighlightColor = value
+            shimmerView.highlightColor = toColorInt(value, ShimmerTextView.DEFAULT_HIGHLIGHT_COLOR)
+        }
 
     private var _shimmerDuration: Double? = null
     override var shimmerDuration: Double?
         get() = _shimmerDuration
-        set(value) { _shimmerDuration = value; shimmerView.animDuration = (value ?: 1500.0).toLong() }
+        set(value) {
+            _shimmerDuration = value
+            shimmerView.animDuration = if (value != null && value.isFinite() && value > 0) {
+                value.toLong().coerceAtLeast(1L)
+            } else {
+                1500L
+            }
+        }
 
     private var _fontSize: Double? = null
     override var fontSize: Double?
         get() = _fontSize
-        set(value) {
-            _fontSize = value
-            val dp = (value ?: 16.0).toFloat()
-            shimmerView.textSizePx = dp * context.resources.displayMetrics.density
-        }
+        set(value) { _fontSize = value; updateTextSize() }
+
+    private var _allowFontScaling: Boolean? = null
+    override var allowFontScaling: Boolean?
+        get() = _allowFontScaling
+        set(value) { _allowFontScaling = value; updateTextSize() }
 
     private var _fontFamily: String? = null
     override var fontFamily: String?
@@ -239,12 +292,23 @@ class HybridNitroShimmerText(val context: ThemedReactContext) : HybridNitroShimm
         get() = _onContentSizeChange
         set(value) { _onContentSizeChange = value }
 
+    init {
+        // Setters only run for props JS actually passes, so apply the default size up front
+        updateTextSize()
+    }
+
     override fun afterUpdate() {
         val (widthPx, heightPx) = shimmerView.measureNaturalSize()
-        if (widthPx == 0f || heightPx == 0f) return
         // Paint returns pixels; React Native layout expects dp
         val density = context.resources.displayMetrics.density
         _onContentSizeChange?.invoke((widthPx / density).toDouble(), (heightPx / density).toDouble())
+    }
+
+    private fun updateTextSize() {
+        val size = (_fontSize ?: 16.0).toFloat()
+        // sp follows the system font scale, dp ignores it
+        val unit = if (_allowFontScaling ?: true) TypedValue.COMPLEX_UNIT_SP else TypedValue.COMPLEX_UNIT_DIP
+        shimmerView.textSizePx = TypedValue.applyDimension(unit, size, context.resources.displayMetrics)
     }
 
     private fun updateTypeface() {
@@ -259,22 +323,19 @@ class HybridNitroShimmerText(val context: ThemedReactContext) : HybridNitroShimm
             FontWeight._800 -> 800
             FontWeight._900 -> 900
         }
-        val baseTypeface = _fontFamily?.let { Typeface.create(it, Typeface.NORMAL) }
-            ?: Typeface.DEFAULT
-        shimmerView.typeface = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            Typeface.create(baseTypeface, weight, false)
-        } else {
-            val style = if (weight >= 600) Typeface.BOLD else Typeface.NORMAL
-            Typeface.create(baseTypeface, style)
+        val family = _fontFamily
+        shimmerView.typeface = when {
+            // ReactFontManager resolves fonts from assets/fonts and res/font like <Text> does
+            !family.isNullOrEmpty() ->
+                ReactFontManager.getInstance().getTypeface(family, weight, false, context.assets)
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.P ->
+                Typeface.create(Typeface.DEFAULT, weight, false)
+            else ->
+                Typeface.create(Typeface.DEFAULT, if (weight >= 600) Typeface.BOLD else Typeface.NORMAL)
         }
     }
 
-    private fun parseColor(hex: String?, default_: String): Int {
-        if (hex == null) return Color.parseColor(default_)
-        return try {
-            Color.parseColor(if (hex.startsWith("#")) hex else "#$hex")
-        } catch (e: IllegalArgumentException) {
-            Color.parseColor(default_)
-        }
-    }
+    /** Converts a `processColor` value (ARGB, signed or unsigned) to an Android color int. */
+    private fun toColorInt(value: Double?, default: Int): Int =
+        if (value == null || !value.isFinite()) default else value.toLong().toInt()
 }

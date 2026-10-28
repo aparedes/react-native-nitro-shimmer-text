@@ -15,10 +15,10 @@ namespace NitroShimmerText { class HybridNitroShimmerTextSpec_cxx; }
 // Forward declaration of `FontWeight` to properly resolve imports.
 namespace margelo::nitro::nitroshimmertext { enum class FontWeight; }
 
-#include <functional>
-#include <optional>
 #include <string>
+#include <optional>
 #include "FontWeight.hpp"
+#include <functional>
 
 #include "NitroShimmerText-Swift-Cxx-Umbrella.hpp"
 
@@ -66,13 +66,6 @@ namespace margelo::nitro::nitroshimmertext {
 
   public:
     // Properties
-    inline std::optional<std::function<void(double /* width */, double /* height */)>> getOnContentSizeChange() noexcept override {
-      auto __result = _swiftPart.getOnContentSizeChange();
-      return __result;
-    }
-    inline void setOnContentSizeChange(const std::optional<std::function<void(double /* width */, double /* height */)>>& onContentSizeChange) noexcept override {
-      _swiftPart.setOnContentSizeChange(onContentSizeChange);
-    }
     inline std::string getText() noexcept override {
       auto __result = _swiftPart.getText();
       return __result;
@@ -80,18 +73,18 @@ namespace margelo::nitro::nitroshimmertext {
     inline void setText(const std::string& text) noexcept override {
       _swiftPart.setText(text);
     }
-    inline std::optional<std::string> getShimmerBaseColor() noexcept override {
+    inline std::optional<double> getShimmerBaseColor() noexcept override {
       auto __result = _swiftPart.getShimmerBaseColor();
       return __result;
     }
-    inline void setShimmerBaseColor(const std::optional<std::string>& shimmerBaseColor) noexcept override {
+    inline void setShimmerBaseColor(std::optional<double> shimmerBaseColor) noexcept override {
       _swiftPart.setShimmerBaseColor(shimmerBaseColor);
     }
-    inline std::optional<std::string> getShimmerHighlightColor() noexcept override {
+    inline std::optional<double> getShimmerHighlightColor() noexcept override {
       auto __result = _swiftPart.getShimmerHighlightColor();
       return __result;
     }
-    inline void setShimmerHighlightColor(const std::optional<std::string>& shimmerHighlightColor) noexcept override {
+    inline void setShimmerHighlightColor(std::optional<double> shimmerHighlightColor) noexcept override {
       _swiftPart.setShimmerHighlightColor(shimmerHighlightColor);
     }
     inline std::optional<double> getShimmerDuration() noexcept override {
@@ -121,6 +114,20 @@ namespace margelo::nitro::nitroshimmertext {
     }
     inline void setFontWeight(std::optional<FontWeight> fontWeight) noexcept override {
       _swiftPart.setFontWeight(fontWeight);
+    }
+    inline std::optional<bool> getAllowFontScaling() noexcept override {
+      auto __result = _swiftPart.getAllowFontScaling();
+      return __result;
+    }
+    inline void setAllowFontScaling(std::optional<bool> allowFontScaling) noexcept override {
+      _swiftPart.setAllowFontScaling(allowFontScaling);
+    }
+    inline std::optional<std::function<void(double /* width */, double /* height */)>> getOnContentSizeChange() noexcept override {
+      auto __result = _swiftPart.getOnContentSizeChange();
+      return __result;
+    }
+    inline void setOnContentSizeChange(const std::optional<std::function<void(double /* width */, double /* height */)>>& onContentSizeChange) noexcept override {
+      _swiftPart.setOnContentSizeChange(onContentSizeChange);
     }
 
   public:

@@ -10,13 +10,13 @@
 // Forward declaration of `FontWeight` to properly resolve imports.
 namespace margelo::nitro::nitroshimmertext { enum class FontWeight; }
 
-#include <functional>
-#include <optional>
-#include "JFunc_void_double_double.hpp"
-#include <NitroModules/JNICallable.hpp>
 #include <string>
+#include <optional>
 #include "FontWeight.hpp"
 #include "JFontWeight.hpp"
+#include <functional>
+#include "JFunc_void_double_double.hpp"
+#include <NitroModules/JNICallable.hpp>
 
 namespace margelo::nitro::nitroshimmertext {
 
@@ -48,23 +48,6 @@ namespace margelo::nitro::nitroshimmertext {
   }
 
   // Properties
-  std::optional<std::function<void(double /* width */, double /* height */)>> JHybridNitroShimmerTextSpec::getOnContentSizeChange() {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JFunc_void_double_double::javaobject>()>("getOnContentSizeChange_cxx");
-    auto __result = method(_javaPart);
-    return __result != nullptr ? std::make_optional([&]() -> std::function<void(double /* width */, double /* height */)> {
-      if (__result->isInstanceOf(JFunc_void_double_double_cxx::javaClassStatic())) [[likely]] {
-        auto downcast = jni::static_ref_cast<JFunc_void_double_double_cxx::javaobject>(__result);
-        return downcast->cthis()->getFunction();
-      } else {
-        auto __resultRef = jni::make_global(__result);
-        return JNICallable<JFunc_void_double_double, void(double, double)>(std::move(__resultRef));
-      }
-    }()) : std::nullopt;
-  }
-  void JHybridNitroShimmerTextSpec::setOnContentSizeChange(const std::optional<std::function<void(double /* width */, double /* height */)>>& onContentSizeChange) {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<JFunc_void_double_double::javaobject> /* onContentSizeChange */)>("setOnContentSizeChange_cxx");
-    method(_javaPart, onContentSizeChange.has_value() ? JFunc_void_double_double_cxx::fromCpp(onContentSizeChange.value()) : nullptr);
-  }
   std::string JHybridNitroShimmerTextSpec::getText() {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<jni::JString>()>("getText");
     auto __result = method(_javaPart);
@@ -74,23 +57,23 @@ namespace margelo::nitro::nitroshimmertext {
     static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<jni::JString> /* text */)>("setText");
     method(_javaPart, jni::make_jstring(text));
   }
-  std::optional<std::string> JHybridNitroShimmerTextSpec::getShimmerBaseColor() {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<jni::JString>()>("getShimmerBaseColor");
+  std::optional<double> JHybridNitroShimmerTextSpec::getShimmerBaseColor() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<jni::JDouble>()>("getShimmerBaseColor");
     auto __result = method(_javaPart);
-    return __result != nullptr ? std::make_optional(__result->toStdString()) : std::nullopt;
+    return __result != nullptr ? std::make_optional(__result->value()) : std::nullopt;
   }
-  void JHybridNitroShimmerTextSpec::setShimmerBaseColor(const std::optional<std::string>& shimmerBaseColor) {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<jni::JString> /* shimmerBaseColor */)>("setShimmerBaseColor");
-    method(_javaPart, shimmerBaseColor.has_value() ? jni::make_jstring(shimmerBaseColor.value()) : nullptr);
+  void JHybridNitroShimmerTextSpec::setShimmerBaseColor(std::optional<double> shimmerBaseColor) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<jni::JDouble> /* shimmerBaseColor */)>("setShimmerBaseColor");
+    method(_javaPart, shimmerBaseColor.has_value() ? jni::JDouble::valueOf(shimmerBaseColor.value()) : nullptr);
   }
-  std::optional<std::string> JHybridNitroShimmerTextSpec::getShimmerHighlightColor() {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<jni::JString>()>("getShimmerHighlightColor");
+  std::optional<double> JHybridNitroShimmerTextSpec::getShimmerHighlightColor() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<jni::JDouble>()>("getShimmerHighlightColor");
     auto __result = method(_javaPart);
-    return __result != nullptr ? std::make_optional(__result->toStdString()) : std::nullopt;
+    return __result != nullptr ? std::make_optional(__result->value()) : std::nullopt;
   }
-  void JHybridNitroShimmerTextSpec::setShimmerHighlightColor(const std::optional<std::string>& shimmerHighlightColor) {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<jni::JString> /* shimmerHighlightColor */)>("setShimmerHighlightColor");
-    method(_javaPart, shimmerHighlightColor.has_value() ? jni::make_jstring(shimmerHighlightColor.value()) : nullptr);
+  void JHybridNitroShimmerTextSpec::setShimmerHighlightColor(std::optional<double> shimmerHighlightColor) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<jni::JDouble> /* shimmerHighlightColor */)>("setShimmerHighlightColor");
+    method(_javaPart, shimmerHighlightColor.has_value() ? jni::JDouble::valueOf(shimmerHighlightColor.value()) : nullptr);
   }
   std::optional<double> JHybridNitroShimmerTextSpec::getShimmerDuration() {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<jni::JDouble>()>("getShimmerDuration");
@@ -127,6 +110,32 @@ namespace margelo::nitro::nitroshimmertext {
   void JHybridNitroShimmerTextSpec::setFontWeight(std::optional<FontWeight> fontWeight) {
     static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<JFontWeight> /* fontWeight */)>("setFontWeight");
     method(_javaPart, fontWeight.has_value() ? JFontWeight::fromCpp(fontWeight.value()) : nullptr);
+  }
+  std::optional<bool> JHybridNitroShimmerTextSpec::getAllowFontScaling() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<jni::JBoolean>()>("getAllowFontScaling");
+    auto __result = method(_javaPart);
+    return __result != nullptr ? std::make_optional(static_cast<bool>(__result->value())) : std::nullopt;
+  }
+  void JHybridNitroShimmerTextSpec::setAllowFontScaling(std::optional<bool> allowFontScaling) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<jni::JBoolean> /* allowFontScaling */)>("setAllowFontScaling");
+    method(_javaPart, allowFontScaling.has_value() ? jni::JBoolean::valueOf(allowFontScaling.value()) : nullptr);
+  }
+  std::optional<std::function<void(double /* width */, double /* height */)>> JHybridNitroShimmerTextSpec::getOnContentSizeChange() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JFunc_void_double_double::javaobject>()>("getOnContentSizeChange_cxx");
+    auto __result = method(_javaPart);
+    return __result != nullptr ? std::make_optional([&]() -> std::function<void(double /* width */, double /* height */)> {
+      if (__result->isInstanceOf(JFunc_void_double_double_cxx::javaClassStatic())) [[likely]] {
+        auto downcast = jni::static_ref_cast<JFunc_void_double_double_cxx::javaobject>(__result);
+        return downcast->cthis()->getFunction();
+      } else {
+        auto __resultRef = jni::make_global(__result);
+        return JNICallable<JFunc_void_double_double, void(double, double)>(std::move(__resultRef));
+      }
+    }()) : std::nullopt;
+  }
+  void JHybridNitroShimmerTextSpec::setOnContentSizeChange(const std::optional<std::function<void(double /* width */, double /* height */)>>& onContentSizeChange) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<JFunc_void_double_double::javaobject> /* onContentSizeChange */)>("setOnContentSizeChange_cxx");
+    method(_javaPart, onContentSizeChange.has_value() ? JFunc_void_double_double_cxx::fromCpp(onContentSizeChange.value()) : nullptr);
   }
 
   // Methods

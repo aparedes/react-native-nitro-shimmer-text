@@ -1,0 +1,25 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 80,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": true,
+  "jsxSingleQuote": false,
+  "trailingComma": "all",
+  "ignorePatterns": [
+    "node_modules/**",
+    "lib/**",
+    "nitrogen/generated/**",
+    "android/**",
+    "ios/**",
+    "example/android/**",
+    "example/ios/**",
+    "example/vendor/**",
+    "example/.harness/**",
+    "tasks/**",
+    "**/*.md",
+    "package.json",
+    "example/package.json"
+  ]
+}
